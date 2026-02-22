@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Share2, Copy, Check, Apple } from 'lucide-react';
+import { Share2, Copy, Check, ExternalLink } from 'lucide-react';
 import type { ShoppingItem } from '../types';
-import { exportToReminders, generateTextList, copyToClipboard } from '../utils/exportToReminders';
+import { generateTextList, copyToClipboard, openRemindersApp } from '../utils/exportToReminders';
 
 interface ExportButtonProps {
   listName: string;
@@ -12,8 +12,19 @@ export function ExportButton({ listName, items }: ExportButtonProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const handleExportToReminders = () => {
-    exportToReminders(listName, items);
+  const handleCopyAndOpenReminders = async () => {
+    // 先复制清单到剪贴板
+    const text = generateTextList(listName, items);
+    const success = await copyToClipboard(text);
+
+    if (success) {
+      setCopied(true);
+      // 延迟打开 Reminders，让用户看到复制成功的提示
+      setTimeout(() => {
+        openRemindersApp();
+        setCopied(false);
+      }, 500);
+    }
     setShowMenu(false);
   };
 
@@ -48,18 +59,18 @@ export function ExportButton({ listName, items }: ExportButtonProps) {
             className="fixed inset-0 z-10"
             onClick={() => setShowMenu(false)}
           />
-          <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border dark:border-gray-700 z-20 overflow-hidden">
+          <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border dark:border-gray-700 z-20 overflow-hidden">
             <button
-              onClick={handleExportToReminders}
+              onClick={handleCopyAndOpenReminders}
               className="w-full px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-3 border-b dark:border-gray-700"
             >
-              <Apple className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <ExternalLink className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               <div>
                 <div className="font-medium text-gray-900 dark:text-white">
-                  导出到 Reminders
+                  复制并打开 Reminders
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
-                  一键导入 iOS 提醒事项
+                  复制清单后打开提醒事项
                 </div>
               </div>
             </button>
@@ -74,10 +85,10 @@ export function ExportButton({ listName, items }: ExportButtonProps) {
               )}
               <div>
                 <div className="font-medium text-gray-900 dark:text-white">
-                  复制到剪贴板
+                  {copied ? '已复制！' : '复制到剪贴板'}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
-                  复制清单文本
+                  手动粘贴到任意应用
                 </div>
               </div>
             </button>

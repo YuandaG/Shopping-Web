@@ -2,66 +2,6 @@ import type { ShoppingItem } from '../types';
 import { INGREDIENT_CATEGORIES } from '../types';
 
 /**
- * 生成 Apple Reminders URL Scheme
- * iOS 支持的格式：reminders://
- */
-export function generateRemindersUrl(
-  listName: string,
-  items: ShoppingItem[]
-): string {
-  // 生成清单内容
-  const lines: string[] = [];
-
-  // 按类别分组
-  const groupedItems = new Map<string, ShoppingItem[]>();
-  items.forEach((item) => {
-    const cat = INGREDIENT_CATEGORIES.find((c) => c.id === item.category);
-    const categoryName = cat ? cat.name : '其他';
-    const categoryItems = groupedItems.get(categoryName) || [];
-    categoryItems.push(item);
-    groupedItems.set(categoryName, categoryItems);
-  });
-
-  groupedItems.forEach((categoryItems, categoryName) => {
-    lines.push(`【${categoryName}】`);
-    categoryItems.forEach((item) => {
-      if (!item.checked) {
-        lines.push(`☐ ${item.name}${item.quantity ? ` ${item.quantity}` : ''}`);
-      }
-    });
-  });
-
-  const title = `购物清单: ${listName}`;
-  const notesText = lines.join('\n');
-
-  // 使用 reminders:// URL scheme (iOS 13+)
-  // 格式：reminders://x-callback-url/create?title=xxx&notes=xxx
-  const params = new URLSearchParams({
-    'x-success': window.location.href,
-    title: title,
-    notes: notesText,
-  });
-
-  return `reminders://x-callback-url/create?${params.toString()}`;
-}
-
-/**
- * 导出购物清单到 Apple Reminders
- */
-export function exportToReminders(
-  listName: string,
-  items: ShoppingItem[]
-): boolean {
-  const url = generateRemindersUrl(listName, items);
-
-  // 使用 window.open 而不是 location.href
-  const newWindow = window.open(url, '_self');
-
-  // 如果无法打开，返回 false
-  return newWindow !== null;
-}
-
-/**
  * 生成纯文本格式的购物清单
  */
 export function generateTextList(
@@ -83,8 +23,8 @@ export function generateTextList(
   groupedItems.forEach((categoryItems, categoryName) => {
     lines.push(categoryName);
     categoryItems.forEach((item) => {
-      const checkbox = item.checked ? '[x]' : '[ ]';
-      lines.push(`  ${checkbox} ${item.name}${item.quantity ? ` - ${item.quantity}` : ''}`);
+      const checkbox = item.checked ? '✅' : '⬜';
+      lines.push(`${checkbox} ${item.name}${item.quantity ? ` - ${item.quantity}` : ''}`);
     });
     lines.push('');
   });
@@ -111,4 +51,11 @@ export async function copyToClipboard(text: string): Promise<boolean> {
     document.body.removeChild(textarea);
     return success;
   }
+}
+
+/**
+ * 打开 Apple Reminders 应用
+ */
+export function openRemindersApp(): void {
+  window.location.href = 'reminders://';
 }
