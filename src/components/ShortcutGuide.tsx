@@ -1,4 +1,4 @@
-import { X, Check, ListChecks, AlertCircle } from 'lucide-react';
+import { X, Check, AlertCircle } from 'lucide-react';
 
 interface ShortcutGuideProps {
   isOpen: boolean;
@@ -27,30 +27,33 @@ export function ShortcutGuide({ isOpen, onClose }: ShortcutGuideProps) {
           <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 flex items-start gap-2">
             <AlertCircle className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
             <p className="text-sm text-blue-700 dark:text-blue-400">
-              创建后可一键导出，每个物品变成单独的可勾选提醒项
+              这个快捷指令会为每个物品创建单独的提醒项，可以逐个勾选
             </p>
           </div>
 
           <div className="space-y-4">
-            <h3 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
-              <ListChecks className="w-5 h-5 text-green-500" />
-              创建步骤
+            <h3 className="font-medium text-gray-900 dark:text-white">
+              📱 在 iPhone 上创建快捷指令
             </h3>
 
-            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 space-y-4">
-              <Step number={1} title="打开快捷指令 App" />
-              <Step number={2} title="点击右上角「+」" />
-              <Step number={3} title="点击「添加操作」" />
-              <Step number={4} title="搜索「提醒事项」，选择「将输入添加到提醒事项」" />
-              <Step number={5} title="点击操作中的「提醒事项」，选择要添加到的清单" />
-              <Step number={6} title="点击顶部「新建快捷指令」，改名为「购物清单」" />
-              <Step number={7} title="点击右上角「完成」" />
+            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 space-y-3">
+              <Step number={1} title="打开「快捷指令」App" />
+              <Step number={2} title="点击右上角「+」新建" />
+              <Step number={3} title="添加操作：搜索「剪贴板」→ 选择「获取剪贴板内容」" />
+              <Step number={4} title="再添加：搜索「拆分」→ 选择「拆分文本」" subtitle="（默认按换行符拆分）" />
+              <Step number={5} title="再添加：搜索「重复」→ 选择「重复每一项」" />
+              <Step number={6} title="在循环内添加：搜索「提醒事项」→ 选择「添加新提醒事项」" />
+              <Step number={7} title="在「名称」位置，选择「重复项目」" />
+              <Step number={8} title="点击顶部命名「购物清单」→ 完成" />
             </div>
 
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-3">
-              <p className="text-sm text-yellow-700 dark:text-yellow-400">
-                <strong>重要：</strong>快捷指令名称必须是「购物清单」才能正常工作
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3">
+              <p className="text-sm text-green-700 dark:text-green-400 font-medium mb-1">
+                ✅ 正确的操作顺序：
               </p>
+              <code className="text-xs text-green-600 dark:text-green-400 block">
+                获取剪贴板 → 拆分文本 → 重复每一项 → 添加新提醒事项
+              </code>
             </div>
           </div>
 
@@ -67,13 +70,18 @@ export function ShortcutGuide({ isOpen, onClose }: ShortcutGuideProps) {
   );
 }
 
-function Step({ number, title }: { number: number; title: string }) {
+function Step({ number, title, subtitle }: { number: number; title: string; subtitle?: string }) {
   return (
     <div className="flex items-start gap-3">
       <span className="flex-shrink-0 w-6 h-6 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center text-sm font-medium">
         {number}
       </span>
-      <span className="text-sm text-gray-700 dark:text-gray-300 pt-0.5">{title}</span>
+      <div>
+        <span className="text-sm text-gray-700 dark:text-gray-300">{title}</span>
+        {subtitle && (
+          <span className="text-xs text-gray-500 dark:text-gray-400 block mt-0.5">{subtitle}</span>
+        )}
+      </div>
     </div>
   );
 }
