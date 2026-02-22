@@ -86,9 +86,11 @@ export function useGist(): UseGistReturn {
 
       const data: GistData = JSON.parse(file.content);
 
-      // 先更新 token，再导入数据（这样 importData 能保留正确的 token）
-      updateSettings({ gistId, gistToken: token, lastSync: Date.now() });
+      // 先保存当前 token，再导入数据
+      const savedToken = token;
       importData(data);
+      // 导入后重新设置 token（确保不被覆盖）
+      updateSettings({ gistId, gistToken: savedToken, lastSync: Date.now() });
 
       return true;
     } catch (err) {
