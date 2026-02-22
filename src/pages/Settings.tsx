@@ -309,7 +309,7 @@ export function Settings() {
             购物清单助手 - 管理菜谱与购物清单的工具
           </p>
           <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
-            版本 1.0.2 - 如果看到 Bad credentials 请确保 Token 有 gist 权限
+            版本 1.0.3 - 修复 Token 同步问题
           </p>
         </div>
       </div>
