@@ -28,7 +28,7 @@ export function useGist(): UseGistReturn {
       const response = await fetch(GIST_API_URL, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `token ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -67,7 +67,7 @@ export function useGist(): UseGistReturn {
     try {
       const response = await fetch(`${GIST_API_URL}/${gistId}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `token ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -116,7 +116,7 @@ export function useGist(): UseGistReturn {
       const response = await fetch(`${GIST_API_URL}/${settings.gistId}`, {
         method: 'PATCH',
         headers: {
-          Authorization: `Bearer ${settings.gistToken}`,
+          Authorization: `token ${settings.gistToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
