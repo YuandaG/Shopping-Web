@@ -299,10 +299,12 @@ export const useStore = create<AppState>()(
           recipes: data.recipes,
           shoppingLists: data.shoppingLists,
           currentListId: data.currentListId,
-          // 保留本地的 gistToken，只同步 gistId 和其他设置
+          // 完全保留本地的 gistId 和 gistToken，不覆盖
           settings: {
-            ...data.settings,
-            gistToken: currentSettings.gistToken, // 保留自己的 token
+            ingredientMerges: data.settings?.ingredientMerges || [],
+            gistId: currentSettings.gistId,
+            gistToken: currentSettings.gistToken,
+            lastSync: Date.now(),
           },
         });
       },
