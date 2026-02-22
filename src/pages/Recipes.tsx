@@ -4,11 +4,13 @@ import { Plus, Search, X, Heart, ChefHat } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { RecipeCard } from '../components/RecipeCard';
 import { RecipeForm } from '../components/RecipeForm';
+import { useLanguage } from '../i18n';
 import type { Recipe, CreateRecipeInput } from '../types';
 
 export function Recipes() {
   const navigate = useNavigate();
   const { recipes, addRecipe, updateRecipe, deleteRecipe, toggleFavorite, currentListId, addIngredientsToList } = useStore();
+  const { t, language } = useLanguage();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showFavorites, setShowFavorites] = useState(false);
@@ -54,12 +56,12 @@ export function Recipes() {
 
   const handleAddToList = (recipe: Recipe) => {
     if (!currentListId) {
-      alert('请先创建购物清单');
+      alert(t.recipes.pleaseCreateList);
       navigate('/shopping');
       return;
     }
     addIngredientsToList({ recipeId: recipe.id, recipeName: recipe.name, ingredients: recipe.ingredients });
-    alert(`已添加 "${recipe.name}" 的食材`);
+    alert(t.recipes.addedToCart.replace('{name}', recipe.name));
   };
 
   return (
@@ -68,13 +70,13 @@ export function Recipes() {
       <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
         <div className="max-w-lg mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">我的菜谱</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t.recipes.title}</h1>
             <button
               onClick={() => setShowForm(true)}
               className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-colors"
             >
               <Plus className="w-5 h-5" />
-              新建
+              {t.recipes.new}
             </button>
           </div>
 
@@ -86,7 +88,7 @@ export function Recipes() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="搜索菜谱..."
+                placeholder={t.recipes.search}
                 className="w-full pl-10 pr-10 py-2.5 bg-gray-100 dark:bg-gray-800 border-0 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500"
               />
               {searchQuery && (
@@ -115,11 +117,11 @@ export function Recipes() {
               <ChefHat className="w-8 h-8 text-gray-300" />
             </div>
             <p className="text-gray-500 dark:text-gray-400 mb-4">
-              {searchQuery || showFavorites ? '没有找到匹配的菜谱' : '还没有菜谱'}
+              {searchQuery || showFavorites ? t.recipes.emptySearch : t.recipes.empty}
             </p>
             {!searchQuery && !showFavorites && (
               <button onClick={() => setShowForm(true)} className="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600">
-                创建第一个菜谱
+                {t.recipes.createFirst}
               </button>
             )}
           </div>
@@ -145,7 +147,7 @@ export function Recipes() {
           <div className="w-full sm:max-w-lg max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-xl">
             <div className="sticky top-0 bg-white dark:bg-gray-900 px-4 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {editingRecipe ? '编辑菜谱' : '新建菜谱'}
+                {editingRecipe ? t.recipeForm.edit : t.recipeForm.create}
               </h2>
               <button
                 onClick={() => { setShowForm(false); setEditingRecipe(null); }}
@@ -169,14 +171,18 @@ export function Recipes() {
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
           <div className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">删除菜谱？</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">此操作无法撤销</p>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              {language === 'zh' ? '删除菜谱？' : 'Delete recipe?'}
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
+              {language === 'zh' ? '此操作无法撤销' : 'This action cannot be undone'}
+            </p>
             <div className="flex gap-3">
               <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl">
-                取消
+                {t.settings.cancel}
               </button>
               <button onClick={() => handleDeleteRecipe(deleteConfirm)} className="flex-1 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600">
-                删除
+                {language === 'zh' ? '删除' : 'Delete'}
               </button>
             </div>
           </div>

@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Cloud, Download, Upload, Database, FileDown, Github, Zap } from 'lucide-react';
+import { ArrowLeft, Cloud, Download, Upload, Database, FileDown, Github, Zap, Globe } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { useGist } from '../hooks/useGist';
 import { GitHubGuide } from '../components/GitHubGuide';
 import { ShortcutGuide } from '../components/ShortcutGuide';
+import { useLanguage } from '../i18n';
 import type { GistData } from '../types';
 import { useRef } from 'react';
 
 export function Settings() {
   const navigate = useNavigate();
+  const { t, language, setLanguage, shortcutName } = useLanguage();
   const { settings, exportData, recipes, shoppingLists, importData, updateSettings } = useStore();
   const { isLoading, error, createGist, loadFromGist, saveToGist } = useGist();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -27,13 +29,13 @@ export function Settings() {
       updateSettings({ gistId });
       const success = await loadFromGist(gistId, token);
       if (success) {
-        setSuccessMessage('数据加载成功！');
+        setSuccessMessage(language === 'zh' ? '数据加载成功！' : 'Data loaded successfully!');
         setTimeout(() => setSuccessMessage(null), 3000);
       }
     } else {
       const newGistId = await createGist(token);
       if (newGistId) {
-        setSuccessMessage('Gist 创建成功！可以把 ID 分享给朋友');
+        setSuccessMessage(language === 'zh' ? 'Gist 创建成功！可以把 ID 分享给朋友' : 'Gist created! Share the ID with friends');
         setTimeout(() => setSuccessMessage(null), 3000);
       }
     }
@@ -44,7 +46,7 @@ export function Settings() {
     const success = await loadFromGist(settings.gistId, settings.gistToken);
     setShowConfirmSync(null);
     if (success) {
-      setSuccessMessage('数据已更新');
+      setSuccessMessage(language === 'zh' ? '数据已更新' : 'Data updated');
       setTimeout(() => setSuccessMessage(null), 3000);
     }
   };
@@ -53,7 +55,7 @@ export function Settings() {
     const success = await saveToGist();
     setShowConfirmSync(null);
     if (success) {
-      setSuccessMessage('数据已保存');
+      setSuccessMessage(language === 'zh' ? '数据已保存' : 'Data saved');
       setTimeout(() => setSuccessMessage(null), 3000);
     }
   };
@@ -79,14 +81,18 @@ export function Settings() {
         const content = e.target?.result as string;
         const data: GistData = JSON.parse(content);
         if (!data.recipes || !data.shoppingLists) {
-          alert('文件格式不正确');
+          alert(language === 'zh' ? '文件格式不正确' : 'Invalid file format');
           return;
         }
         importData(data);
-        setSuccessMessage(`导入成功！${data.recipes.length} 个菜谱，${data.shoppingLists.length} 个购物清单`);
+        setSuccessMessage(
+          language === 'zh'
+            ? `导入成功！${data.recipes.length} 个菜谱，${data.shoppingLists.length} 个购物清单`
+            : `Imported! ${data.recipes.length} recipes, ${data.shoppingLists.length} shopping lists`
+        );
         setTimeout(() => setSuccessMessage(null), 3000);
       } catch {
-        alert('文件解析失败');
+        alert(language === 'zh' ? '文件解析失败' : 'Failed to parse file');
       }
     };
     reader.readAsText(file);
@@ -105,7 +111,7 @@ export function Settings() {
             >
               <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">设置</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t.settings.title}</h1>
           </div>
         </div>
       </div>
@@ -132,21 +138,61 @@ export function Settings() {
               <Database className="w-5 h-5 text-blue-500" />
             </div>
             <div>
-              <h2 className="font-semibold text-gray-900 dark:text-white">数据状态</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400">当前本地存储的内容</p>
+              <h2 className="font-semibold text-gray-900 dark:text-white">{t.settings.dataStatus}</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t.settings.dataStatusDesc}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
               <div className="text-2xl font-bold text-gray-900 dark:text-white">{recipes.length}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">菜谱</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t.home.recipes}</div>
             </div>
             <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
               <div className="text-2xl font-bold text-gray-900 dark:text-white">{shoppingLists.length}</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">购物清单</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t.home.shoppingList}</div>
             </div>
           </div>
+        </div>
+
+        {/* Language */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center">
+              <Globe className="w-5 h-5 text-indigo-500" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-gray-900 dark:text-white">{t.settings.language}</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t.settings.languageDesc}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => setLanguage('zh')}
+              className={`py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors ${
+                language === 'zh'
+                  ? 'bg-indigo-500 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              🇨🇳 中文
+            </button>
+            <button
+              onClick={() => setLanguage('en')}
+              className={`py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors ${
+                language === 'en'
+                  ? 'bg-indigo-500 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              🇺🇸 English
+            </button>
+          </div>
+
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-3 text-center">
+            {language === 'zh' ? '快捷指令名称' : 'Shortcut name'}: <code className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">{shortcutName}</code>
+          </p>
         </div>
 
         {/* Shortcuts Setup */}
@@ -159,8 +205,8 @@ export function Settings() {
               <Zap className="w-5 h-5 text-purple-500" />
             </div>
             <div className="flex-1">
-              <h2 className="font-semibold text-gray-900 dark:text-white">快捷指令设置</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400">导出到提醒事项，逐项勾选</p>
+              <h2 className="font-semibold text-gray-900 dark:text-white">{t.settings.shortcuts}</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t.settings.shortcutsDesc}</p>
             </div>
             <ArrowLeft className="w-5 h-5 text-gray-400 rotate-180" />
           </div>
@@ -173,9 +219,9 @@ export function Settings() {
               <Cloud className="w-5 h-5 text-green-500" />
             </div>
             <div className="flex-1">
-              <h2 className="font-semibold text-gray-900 dark:text-white">云端同步</h2>
+              <h2 className="font-semibold text-gray-900 dark:text-white">{t.settings.cloudSync}</h2>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                {isConfigured ? '已连接 GitHub' : '未配置'}
+                {isConfigured ? t.settings.connected : t.settings.notConfigured}
               </p>
             </div>
           </div>
@@ -186,20 +232,20 @@ export function Settings() {
               className="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
             >
               <Github className="w-5 h-5" />
-              开始设置
+              {t.settings.startSetup}
             </button>
           ) : (
             <div className="space-y-3">
               <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Gist ID</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{t.settings.gistId}</span>
                   <code className="text-sm text-gray-900 dark:text-white font-mono">{settings.gistId?.slice(0, 12)}...</code>
                 </div>
                 {settings.lastSync && (
                   <div className="flex items-center justify-between mt-2">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">上次同步</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{t.settings.lastSync}</span>
                     <span className="text-sm text-gray-500 dark:text-gray-400">
-                      {new Date(settings.lastSync).toLocaleString('zh-CN')}
+                      {new Date(settings.lastSync).toLocaleString(language === 'zh' ? 'zh-CN' : 'en-US')}
                     </span>
                   </div>
                 )}
@@ -212,7 +258,7 @@ export function Settings() {
                   className="py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
                 >
                   <Download className="w-5 h-5" />
-                  加载
+                  {t.settings.load}
                 </button>
                 <button
                   onClick={() => setShowConfirmSync('save')}
@@ -220,7 +266,7 @@ export function Settings() {
                   className="py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
                 >
                   <Upload className="w-5 h-5" />
-                  保存
+                  {t.settings.save}
                 </button>
               </div>
 
@@ -228,7 +274,7 @@ export function Settings() {
                 onClick={() => setShowGitHubGuide(true)}
                 className="w-full py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 flex items-center justify-center gap-1"
               >
-                查看设置指南
+                {t.settings.viewGuide}
               </button>
             </div>
           )}
@@ -239,25 +285,23 @@ export function Settings() {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
             <div className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-xl">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                {showConfirmSync === 'load' ? '加载数据？' : '保存数据？'}
+                {showConfirmSync === 'load' ? t.settings.loadConfirm : t.settings.saveConfirm}
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
-                {showConfirmSync === 'load'
-                  ? '会用云端数据覆盖本地数据'
-                  : '会上传本地数据到云端，覆盖云端数据'}
+                {showConfirmSync === 'load' ? t.settings.loadConfirmDesc : t.settings.saveConfirmDesc}
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowConfirmSync(null)}
                   className="flex-1 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
-                  取消
+                  {t.settings.cancel}
                 </button>
                 <button
                   onClick={showConfirmSync === 'load' ? handleLoadData : handleSaveData}
                   className="flex-1 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
                 >
-                  确认
+                  {t.settings.confirm}
                 </button>
               </div>
             </div>
@@ -271,8 +315,8 @@ export function Settings() {
               <FileDown className="w-5 h-5 text-orange-500" />
             </div>
             <div>
-              <h2 className="font-semibold text-gray-900 dark:text-white">本地备份</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400">导出或导入 JSON 文件</p>
+              <h2 className="font-semibold text-gray-900 dark:text-white">{t.settings.backup}</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t.settings.backupDesc}</p>
             </div>
           </div>
 
@@ -281,7 +325,7 @@ export function Settings() {
               onClick={handleExportLocal}
               className="py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
             >
-              导出
+              {t.settings.export}
             </button>
             <label className="py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer text-center">
               <input
@@ -291,14 +335,14 @@ export function Settings() {
                 onChange={handleImportLocal}
                 className="hidden"
               />
-              导入
+              {t.settings.import}
             </label>
           </div>
         </div>
 
         {/* Version */}
         <div className="text-center text-xs text-gray-400 dark:text-gray-500 pt-4">
-          购物清单助手 · v1.2.0
+          Shopping List Assistant · v1.3.0
         </div>
       </div>
 

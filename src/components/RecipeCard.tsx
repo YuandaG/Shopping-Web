@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Heart, MoreVertical, Edit, Trash2, ShoppingCart } from 'lucide-react';
 import type { Recipe } from '../types';
 import { INGREDIENT_CATEGORIES } from '../types';
+import { useLanguage } from '../i18n';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -19,6 +20,7 @@ export function RecipeCard({
   onToggleFavorite,
 }: RecipeCardProps) {
   const [showMenu, setShowMenu] = useState(false);
+  const { t, language } = useLanguage();
 
   const categoryIcons = new Map(
     INGREDIENT_CATEGORIES.map((c) => [c.id, c.icon])
@@ -82,7 +84,7 @@ export function RecipeCard({
                       className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
                     >
                       <Edit className="w-4 h-4" />
-                      编辑
+                      {language === 'zh' ? '编辑' : 'Edit'}
                     </button>
                     <button
                       onClick={() => {
@@ -92,7 +94,7 @@ export function RecipeCard({
                       className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-red-500"
                     >
                       <Trash2 className="w-4 h-4" />
-                      删除
+                      {language === 'zh' ? '删除' : 'Delete'}
                     </button>
                   </div>
                 </>
@@ -115,7 +117,7 @@ export function RecipeCard({
             ))}
             {recipe.ingredients.length > 5 && (
               <span className="px-2 py-0.5 text-xs text-gray-500 dark:text-gray-400">
-                +{recipe.ingredients.length - 5} 更多
+                +{recipe.ingredients.length - 5} {language === 'zh' ? '更多' : 'more'}
               </span>
             )}
           </div>
@@ -141,7 +143,7 @@ export function RecipeCard({
           className="mt-4 w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center justify-center gap-2 transition-colors"
         >
           <ShoppingCart className="w-4 h-4" />
-          添加到购物清单
+          {t.recipes.addToCart}
         </button>
       </div>
     </div>

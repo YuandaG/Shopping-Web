@@ -1,24 +1,26 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { Home, BookOpen, ShoppingCart, Settings } from 'lucide-react';
 import { useStore } from '../store/useStore';
+import { useLanguage } from '../i18n';
 
 export function Navigation() {
   const location = useLocation();
   const { shoppingLists, currentListId } = useStore();
+  const { t } = useLanguage();
 
   const currentList = shoppingLists.find((l) => l.id === currentListId);
   const uncheckedCount = currentList?.items.filter((i) => !i.checked).length || 0;
 
   const navItems = [
-    { path: '/', icon: Home, label: '首页' },
-    { path: '/recipes', icon: BookOpen, label: '菜谱' },
+    { path: '/', icon: Home, label: t.nav.home },
+    { path: '/recipes', icon: BookOpen, label: t.nav.recipes },
     {
       path: '/shopping',
       icon: ShoppingCart,
-      label: '清单',
+      label: t.nav.list,
       badge: uncheckedCount > 0 ? uncheckedCount : undefined,
     },
-    { path: '/settings', icon: Settings, label: '设置' },
+    { path: '/settings', icon: Settings, label: t.nav.settings },
   ];
 
   if (location.pathname === '/') return null;

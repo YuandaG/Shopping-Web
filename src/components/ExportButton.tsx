@@ -3,19 +3,20 @@ import { Share2, Copy, Check, Zap, ExternalLink, Settings } from 'lucide-react';
 import type { ShoppingItem } from '../types';
 import { generateTextList, generateRemindersText, copyToClipboard, openRemindersApp } from '../utils/exportToReminders';
 import { ShortcutGuide } from './ShortcutGuide';
+import { useLanguage } from '../i18n';
 
 interface ExportButtonProps {
   listName: string;
   items: ShoppingItem[];
 }
 
-const SHORTCUT_NAME = '购物清单';
 const SHORTCUT_INSTALLED_KEY = 'shortcut-installed';
 
 export function ExportButton({ listName, items }: ExportButtonProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
+  const { t, shortcutName, language } = useLanguage();
 
   // 检查是否已安装快捷指令
   const [shortcutInstalled, setShortcutInstalled] = useState(() => {
@@ -28,7 +29,7 @@ export function ExportButton({ listName, items }: ExportButtonProps) {
     await copyToClipboard(text);
 
     // 运行快捷指令
-    const shortcutUrl = `shortcuts://run-shortcut?name=${encodeURIComponent(SHORTCUT_NAME)}&input=clipboard`;
+    const shortcutUrl = `shortcuts://run-shortcut?name=${encodeURIComponent(shortcutName)}&input=clipboard`;
     window.location.href = shortcutUrl;
     setShowMenu(false);
   };
@@ -80,7 +81,7 @@ export function ExportButton({ listName, items }: ExportButtonProps) {
           className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
         >
           <Share2 className="w-5 h-5" />
-          导出清单
+          {t.export.export}
         </button>
 
         {showMenu && (
@@ -95,33 +96,33 @@ export function ExportButton({ listName, items }: ExportButtonProps) {
               {shortcutInstalled ? (
                 <div className="p-3 bg-purple-50 dark:bg-purple-900/20 border-b dark:border-gray-700">
                   <div className="text-xs text-purple-600 dark:text-purple-400 font-medium mb-2">
-                    ⚡ 一键导出（推荐）
+                    ⚡ {t.export.oneClickExport}
                   </div>
                   <button
                     onClick={handleShortcutExport}
                     className="w-full px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg flex items-center justify-center gap-2 transition-colors"
                   >
                     <Zap className="w-4 h-4" />
-                    导出到提醒事项
+                    {language === 'zh' ? '导出到提醒事项' : 'Export to Reminders'}
                   </button>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    每个物品变成单独的可勾选项
+                    {t.export.oneClickDesc}
                   </p>
                 </div>
               ) : (
                 <div className="p-3 bg-purple-50 dark:bg-purple-900/20 border-b dark:border-gray-700">
                   <div className="text-xs text-purple-600 dark:text-purple-400 font-medium mb-2">
-                    ⚡ 更好的方案
+                    ⚡ {t.export.betterOption}
                   </div>
                   <button
                     onClick={handleSetupShortcut}
                     className="w-full px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg flex items-center justify-center gap-2 transition-colors"
                   >
                     <Settings className="w-4 h-4" />
-                    设置快捷指令
+                    {t.export.setupShortcut}
                   </button>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    设置后可一键导出，每个物品单独勾选
+                    {t.export.setupShortcutDesc}
                   </p>
                 </div>
               )}
@@ -134,10 +135,10 @@ export function ExportButton({ listName, items }: ExportButtonProps) {
                 <ExternalLink className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 <div>
                   <div className="font-medium text-gray-900 dark:text-white">
-                    复制 → 打开 Reminders
+                    {t.export.copyAndOpen}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
-                    手动粘贴创建
+                    {t.export.copyAndOpenDesc}
                   </div>
                 </div>
               </button>
@@ -154,10 +155,10 @@ export function ExportButton({ listName, items }: ExportButtonProps) {
                 )}
                 <div>
                   <div className="font-medium text-gray-900 dark:text-white">
-                    {copied ? '已复制！' : '复制完整清单'}
+                    {copied ? t.export.copied : t.export.copyToClipboard}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
-                    包含分类信息
+                    {t.export.copyDesc}
                   </div>
                 </div>
               </button>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, X, ChevronDown } from 'lucide-react';
 import type { Recipe, CategoryId, CreateRecipeInput } from '../types';
 import { INGREDIENT_CATEGORIES } from '../types';
+import { useLanguage } from '../i18n';
 import { v4 as uuidv4 } from 'uuid';
 
 interface RecipeFormProps {
@@ -18,6 +19,7 @@ interface IngredientInput {
 }
 
 export function RecipeForm({ recipe, onSubmit, onCancel }: RecipeFormProps) {
+  const { t, language } = useLanguage();
   const [name, setName] = useState(recipe?.name || '');
   const [description, setDescription] = useState(recipe?.description || '');
   const [ingredients, setIngredients] = useState<IngredientInput[]>(
@@ -67,12 +69,12 @@ export function RecipeForm({ recipe, onSubmit, onCancel }: RecipeFormProps) {
     const validIngredients = ingredients.filter((ing) => ing.name.trim());
 
     if (!name.trim()) {
-      alert('请输入菜谱名称');
+      alert(t.recipeForm.nameRequired);
       return;
     }
 
     if (validIngredients.length === 0) {
-      alert('请至少添加一种食材');
+      alert(t.recipeForm.ingredientRequired);
       return;
     }
 
@@ -88,30 +90,48 @@ export function RecipeForm({ recipe, onSubmit, onCancel }: RecipeFormProps) {
     });
   };
 
+  // Get category name based on language
+  const getCategoryName = (categoryId: string) => {
+    const categoryMap: Record<string, keyof typeof t.categories> = {
+      meat: 'meat',
+      vegetable: 'vegetable',
+      seafood: 'seafood',
+      condiment: 'condiment',
+      grain: 'grain',
+      dairy: 'dairy',
+      drink: 'drink',
+      fruit: 'fruit',
+      frozen: 'frozen',
+      snack: 'snack',
+      other: 'other',
+    };
+    return t.categories[categoryMap[categoryId] || 'other'];
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* 基本信息 */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          菜谱名称 *
+          {t.recipeForm.name} *
         </label>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="例如：油焖鸡"
+          placeholder={t.recipeForm.namePlaceholder}
           className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
         />
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          描述（可选）
+          {t.recipeForm.description}
         </label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="菜谱简介..."
+          placeholder={t.recipeForm.descriptionPlaceholder}
           rows={2}
           className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white resize-none"
         />
@@ -120,7 +140,7 @@ export function RecipeForm({ recipe, onSubmit, onCancel }: RecipeFormProps) {
       {/* 食材列表 */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          食材 *
+          {t.recipeForm.ingredients} *
         </label>
         <div className="space-y-3">
           {ingredients.map((ing) => (
@@ -130,14 +150,14 @@ export function RecipeForm({ recipe, onSubmit, onCancel }: RecipeFormProps) {
                   type="text"
                   value={ing.name}
                   onChange={(e) => updateIngredient(ing.id, { name: e.target.value })}
-                  placeholder="食材名称"
+                  placeholder={t.recipeForm.ingredientName}
                   className="col-span-5 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
                 />
                 <input
                   type="text"
                   value={ing.quantity}
                   onChange={(e) => updateIngredient(ing.id, { quantity: e.target.value })}
-                  placeholder="数量"
+                  placeholder={t.recipeForm.quantity}
                   className="col-span-3 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
                 />
                 <div className="col-span-4 relative">
@@ -148,7 +168,7 @@ export function RecipeForm({ recipe, onSubmit, onCancel }: RecipeFormProps) {
                   >
                     {INGREDIENT_CATEGORIES.map((cat) => (
                       <option key={cat.id} value={cat.id}>
-                        {cat.icon} {cat.name}
+                        {cat.icon} {getCategoryName(cat.id)}
                       </option>
                     ))}
                   </select>
@@ -172,14 +192,14 @@ export function RecipeForm({ recipe, onSubmit, onCancel }: RecipeFormProps) {
           className="mt-3 flex items-center gap-1 text-sm text-blue-500 hover:text-blue-600"
         >
           <Plus className="w-4 h-4" />
-          添加食材
+          {t.recipeForm.addIngredient}
         </button>
       </div>
 
       {/* 标签 */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          标签
+          {t.recipeForm.tags}
         </label>
         <div className="flex gap-2 mb-2 flex-wrap">
           {tags.map((tag) => (
@@ -209,7 +229,7 @@ export function RecipeForm({ recipe, onSubmit, onCancel }: RecipeFormProps) {
                 addTag();
               }
             }}
-            placeholder="输入标签后按回车"
+            placeholder={t.recipeForm.tagPlaceholder}
             className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
           />
           <button
@@ -217,7 +237,7 @@ export function RecipeForm({ recipe, onSubmit, onCancel }: RecipeFormProps) {
             onClick={addTag}
             className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
           >
-            添加
+            {language === 'zh' ? '添加' : 'Add'}
           </button>
         </div>
       </div>
@@ -229,13 +249,13 @@ export function RecipeForm({ recipe, onSubmit, onCancel }: RecipeFormProps) {
           onClick={onCancel}
           className="flex-1 py-2 px-4 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
         >
-          取消
+          {t.recipeForm.cancel}
         </button>
         <button
           type="submit"
           className="flex-1 py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
         >
-          {recipe ? '保存修改' : '创建菜谱'}
+          {recipe ? t.recipeForm.save : t.recipeForm.createBtn}
         </button>
       </div>
     </form>

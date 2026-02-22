@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useStore, groupItemsByCategory } from '../store/useStore';
 import { ExportButton } from '../components/ExportButton';
+import { useLanguage } from '../i18n';
 import type { ShoppingItem, CategoryId } from '../types';
 import { INGREDIENT_CATEGORIES } from '../types';
 
@@ -28,6 +29,7 @@ export function ShoppingListPage() {
     toggleItemChecked,
     clearCheckedItems,
   } = useStore();
+  const { t, language } = useLanguage();
 
   const [showAddItem, setShowAddItem] = useState(false);
   const [showListMenu, setShowListMenu] = useState(false);
@@ -49,6 +51,24 @@ export function ShoppingListPage() {
 
   const totalItems = currentList?.items.length || 0;
   const checkedItems = currentList?.items.filter((i) => i.checked).length || 0;
+
+  // Get category name based on language
+  const getCategoryName = (categoryId: string) => {
+    const categoryMap: Record<string, keyof typeof t.categories> = {
+      meat: 'meat',
+      vegetable: 'vegetable',
+      seafood: 'seafood',
+      condiment: 'condiment',
+      grain: 'grain',
+      dairy: 'dairy',
+      drink: 'drink',
+      fruit: 'fruit',
+      frozen: 'frozen',
+      snack: 'snack',
+      other: 'other',
+    };
+    return t.categories[categoryMap[categoryId] || 'other'];
+  };
 
   const handleCreateList = () => {
     if (!newListName.trim()) return;
@@ -106,10 +126,10 @@ export function ShoppingListPage() {
                   <button onClick={() => setShowHistory(false)} className="p-2 -ml-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl">
                     <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                   </button>
-                  <h1 className="text-xl font-bold text-gray-900 dark:text-white">历史清单</h1>
+                  <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t.shopping.history}</h1>
                 </>
               ) : (
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">购物清单</h1>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t.shopping.title}</h1>
               )}
             </div>
 
@@ -142,7 +162,7 @@ export function ShoppingListPage() {
                 onClick={() => setShowDeleteConfirm('checked')}
                 disabled={checkedItems === 0}
                 className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl disabled:opacity-30 transition-colors"
-                title="清除已购买"
+                title={t.shopping.clearPurchased}
               >
                 <CheckCircle2 className="w-5 h-5" />
               </button>
@@ -165,7 +185,7 @@ export function ShoppingListPage() {
                     >
                       <div>
                         <div className="font-medium text-gray-900 dark:text-white">{list.name}</div>
-                        <div className="text-xs text-gray-500">{list.items.length} 项</div>
+                        <div className="text-xs text-gray-500">{list.items.length} {language === 'zh' ? '项' : 'items'}</div>
                       </div>
                       {list.id === currentListId && <CheckCircle2 className="w-5 h-5 text-blue-500" />}
                     </button>
@@ -175,7 +195,7 @@ export function ShoppingListPage() {
                   onClick={() => { setShowNewListForm(true); setShowListMenu(false); }}
                   className="w-full px-4 py-3 text-left text-blue-500 hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center gap-2 border-t border-gray-100 dark:border-gray-700"
                 >
-                  <Plus className="w-5 h-5" /> 新建清单
+                  <Plus className="w-5 h-5" /> {t.shopping.createList}
                 </button>
               </div>
             </>
@@ -189,7 +209,7 @@ export function ShoppingListPage() {
           /* History View */
           <div className="space-y-3">
             {shoppingLists.length === 0 ? (
-              <div className="text-center py-12 text-gray-400">暂无清单记录</div>
+              <div className="text-center py-12 text-gray-400">{t.shopping.noHistory}</div>
             ) : (
               shoppingLists.map((list) => (
                 <div key={list.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
@@ -197,7 +217,7 @@ export function ShoppingListPage() {
                     <div>
                       <h3 className="font-medium text-gray-900 dark:text-white">{list.name}</h3>
                       <p className="text-xs text-gray-400 mt-1">
-                        {list.items.filter(i => i.checked).length}/{list.items.length} 已购买 · {new Date(list.createdAt).toLocaleDateString()}
+                        {list.items.filter(i => i.checked).length}/{list.items.length} {t.shopping.purchased} · {new Date(list.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="flex gap-2">
@@ -205,10 +225,10 @@ export function ShoppingListPage() {
                         onClick={() => { setCurrentList(list.id); setShowHistory(false); }}
                         className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-200 dark:hover:bg-gray-600"
                       >
-                        查看
+                        {t.shopping.view}
                       </button>
                       <button
-                        onClick={() => { if (confirm('删除此清单？')) deleteShoppingList(list.id); }}
+                        onClick={() => { if (confirm(t.shopping.deleteConfirm)) deleteShoppingList(list.id); }}
                         className="p-1.5 text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -230,7 +250,7 @@ export function ShoppingListPage() {
                     type="text"
                     value={newItem.name}
                     onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-                    placeholder="物品名称"
+                    placeholder={t.shopping.itemName}
                     className="col-span-5 px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-transparent dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     autoFocus
                   />
@@ -238,7 +258,7 @@ export function ShoppingListPage() {
                     type="text"
                     value={newItem.quantity}
                     onChange={(e) => setNewItem({ ...newItem, quantity: e.target.value })}
-                    placeholder="数量"
+                    placeholder={language === 'zh' ? '数量' : 'Qty'}
                     className="col-span-3 px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-transparent dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <select
@@ -247,16 +267,16 @@ export function ShoppingListPage() {
                     className="col-span-4 px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-transparent dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     {INGREDIENT_CATEGORIES.map((cat) => (
-                      <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>
+                      <option key={cat.id} value={cat.id}>{cat.icon} {getCategoryName(cat.id)}</option>
                     ))}
                   </select>
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => setShowAddItem(false)} className="flex-1 py-2.5 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700">
-                    取消
+                    {t.settings.cancel}
                   </button>
                   <button onClick={handleAddItem} disabled={!newItem.name.trim()} className="flex-1 py-2.5 bg-blue-500 text-white rounded-xl hover:bg-blue-600 disabled:opacity-50">
-                    添加
+                    {language === 'zh' ? '添加' : 'Add'}
                   </button>
                 </div>
               </div>
@@ -265,7 +285,7 @@ export function ShoppingListPage() {
                 onClick={() => setShowAddItem(true)}
                 className="w-full py-3 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl text-gray-400 hover:border-blue-500 hover:text-blue-500 transition-colors flex items-center justify-center gap-2"
               >
-                <Plus className="w-5 h-5" /> 添加物品
+                <Plus className="w-5 h-5" /> {t.shopping.addItem}
               </button>
             )}
 
@@ -285,7 +305,7 @@ export function ShoppingListPage() {
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{category.icon}</span>
-                      <span className="font-medium text-gray-900 dark:text-white">{category.name}</span>
+                      <span className="font-medium text-gray-900 dark:text-white">{getCategoryName(category.id)}</span>
                       <span className="text-sm text-gray-400">({categoryChecked}/{categoryItems.length})</span>
                     </div>
                     <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? '' : '-rotate-90'}`} />
@@ -331,10 +351,10 @@ export function ShoppingListPage() {
                 <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <ShoppingCart className="w-8 h-8 text-gray-300" />
                 </div>
-                <p className="text-gray-500 dark:text-gray-400 mb-2">清单是空的</p>
-                <p className="text-sm text-gray-400 mb-4">从菜谱添加或手动添加物品</p>
+                <p className="text-gray-500 dark:text-gray-400 mb-2">{t.shopping.empty}</p>
+                <p className="text-sm text-gray-400 mb-4">{t.shopping.emptyDesc}</p>
                 <button onClick={() => navigate('/recipes')} className="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600">
-                  浏览菜谱
+                  {t.shopping.browseRecipes}
                 </button>
               </div>
             )}
@@ -347,7 +367,7 @@ export function ShoppingListPage() {
                     onClick={() => setShowDeleteConfirm('checked')}
                     className="text-sm text-gray-500 hover:text-red-500 flex items-center gap-1"
                   >
-                    <CheckCircle2 className="w-4 h-4" /> 清除已购买 ({checkedItems})
+                    <CheckCircle2 className="w-4 h-4" /> {t.shopping.clearPurchased} ({checkedItems})
                   </button>
                 )}
                 {totalItems > 0 && (
@@ -355,7 +375,7 @@ export function ShoppingListPage() {
                     onClick={() => setShowDeleteConfirm('all')}
                     className="text-sm text-gray-500 hover:text-red-500 flex items-center gap-1"
                   >
-                    <Trash2 className="w-4 h-4" /> 清空全部
+                    <Trash2 className="w-4 h-4" /> {t.shopping.clearAll}
                   </button>
                 )}
               </div>
@@ -367,9 +387,9 @@ export function ShoppingListPage() {
             <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <ShoppingCart className="w-8 h-8 text-gray-300" />
             </div>
-            <p className="text-gray-500 dark:text-gray-400 mb-4">还没有购物清单</p>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">{t.shopping.noList}</p>
             <button onClick={() => setShowNewListForm(true)} className="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600">
-              创建清单
+              {t.shopping.createFirstList}
             </button>
           </div>
         )}
@@ -379,22 +399,22 @@ export function ShoppingListPage() {
       {showNewListForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
           <div className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">新建购物清单</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t.shopping.createList}</h3>
             <input
               type="text"
               value={newListName}
               onChange={(e) => setNewListName(e.target.value)}
-              placeholder="清单名称"
+              placeholder={t.shopping.newListPlaceholder}
               className="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-transparent dark:text-white mb-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               autoFocus
               onKeyDown={(e) => { if (e.key === 'Enter') handleCreateList(); }}
             />
             <div className="flex gap-3">
               <button onClick={() => { setShowNewListForm(false); setNewListName(''); }} className="flex-1 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl">
-                取消
+                {t.settings.cancel}
               </button>
               <button onClick={handleCreateList} disabled={!newListName.trim()} className="flex-1 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 disabled:opacity-50">
-                创建
+                {language === 'zh' ? '创建' : 'Create'}
               </button>
             </div>
           </div>
@@ -406,20 +426,20 @@ export function ShoppingListPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
           <div className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-xl">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              {showDeleteConfirm === 'checked' ? '清除已购买项？' : '清空清单？'}
+              {showDeleteConfirm === 'checked' ? t.shopping.confirmClearPurchased : t.shopping.confirmClearAll}
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
-              {showDeleteConfirm === 'checked' ? `${checkedItems} 个已购买项将被移除` : '所有物品将被移除'}
+              {showDeleteConfirm === 'checked' ? `${checkedItems} ${t.shopping.itemsRemoved}` : t.shopping.allItemsRemoved}
             </p>
             <div className="flex gap-3">
               <button onClick={() => setShowDeleteConfirm(null)} className="flex-1 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl">
-                取消
+                {t.settings.cancel}
               </button>
               <button
                 onClick={showDeleteConfirm === 'checked' ? handleClearChecked : handleClearAll}
                 className="flex-1 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600"
               >
-                确认
+                {t.settings.confirm}
               </button>
             </div>
           </div>
