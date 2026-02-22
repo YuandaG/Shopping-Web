@@ -5,7 +5,7 @@ import { INGREDIENT_CATEGORIES } from '../types';
  * 生成购物清单文本（每行一个物品，方便粘贴到 Reminders）
  */
 export function generateTextList(
-  listName: string,
+  _listName: string,
   items: ShoppingItem[]
 ): string {
   const lines: string[] = [];
