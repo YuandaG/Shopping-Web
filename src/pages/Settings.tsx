@@ -1,64 +1,65 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Github, RefreshCw, Check, AlertCircle, ExternalLink, Database, Upload } from 'lucide-react';
+import { ArrowLeft, Cloud, Download, Upload, Database, HelpCircle, FileDown, Github } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { useGist } from '../hooks/useGist';
+import { GitHubGuide } from '../components/GitHubGuide';
 import type { GistData } from '../types';
 import { useRef } from 'react';
 
 export function Settings() {
   const navigate = useNavigate();
-  const { settings, exportData, recipes, shoppingLists, currentListId, importData } = useStore();
+  const { settings, exportData, recipes, shoppingLists, importData, updateSettings } = useStore();
   const { isLoading, error, createGist, loadFromGist, saveToGist } = useGist();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [gistIdInput, setGistIdInput] = useState(settings.gistId || '');
-  const [tokenInput, setTokenInput] = useState(settings.gistToken || '');
+  const [showGuide, setShowGuide] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showConfirmSync, setShowConfirmSync] = useState<'load' | 'save' | null>(null);
 
-  const handleCreateGist = async () => {
-    if (!tokenInput.trim()) {
-      alert('请输入 GitHub Token');
-      return;
-    }
+  // 检查是否已配置
+  const isConfigured = settings.gistId && settings.gistToken;
 
-    const gistId = await createGist(tokenInput.trim());
+  const handleGuideComplete = async (token: string, gistId?: string) => {
+    updateSettings({ gistToken: token });
     if (gistId) {
-      setGistIdInput(gistId);
-      setSuccessMessage('Gist 创建成功！请把 Gist ID 分享给朋友');
-      setTimeout(() => setSuccessMessage(null), 5000);
+      updateSettings({ gistId });
+      const success = await loadFromGist(gistId, token);
+      if (success) {
+        setSuccessMessage('数据加载成功！');
+        setTimeout(() => setSuccessMessage(null), 3000);
+      }
+    } else {
+      const newGistId = await createGist(token);
+      if (newGistId) {
+        setSuccessMessage('Gist 创建成功！可以把 ID 分享给朋友');
+        setTimeout(() => setSuccessMessage(null), 3000);
+      }
     }
   };
 
-  const handleLoadFromGist = async () => {
-    if (!gistIdInput.trim() || !tokenInput.trim()) {
-      alert('请输入 Gist ID 和 Token');
-      return;
-    }
-
-    const success = await loadFromGist(gistIdInput.trim(), tokenInput.trim());
+  const handleLoadData = async () => {
+    if (!settings.gistId || !settings.gistToken) return;
+    const success = await loadFromGist(settings.gistId, settings.gistToken);
+    setShowConfirmSync(null);
     if (success) {
-      // 确保 tokenInput 和 gistIdInput 保持同步
-      setTokenInput(tokenInput.trim());
-      setGistIdInput(gistIdInput.trim());
-      setSuccessMessage('数据加载成功！请检查菜谱和购物清单');
-      setTimeout(() => setSuccessMessage(null), 5000);
+      setSuccessMessage('数据已更新');
+      setTimeout(() => setSuccessMessage(null), 3000);
     }
   };
 
-  const handleSaveToGist = async () => {
+  const handleSaveData = async () => {
     const success = await saveToGist();
+    setShowConfirmSync(null);
     if (success) {
-      setSuccessMessage('数据同步成功！包含 ' + recipes.length + ' 个菜谱和 ' + shoppingLists.length + ' 个购物清单');
-      setTimeout(() => setSuccessMessage(null), 5000);
+      setSuccessMessage('数据已保存');
+      setTimeout(() => setSuccessMessage(null), 3000);
     }
   };
 
   const handleExportLocal = () => {
     const data = exportData();
-    const blob = new Blob([JSON.stringify(data, null, 2)], {
-      type: 'application/json',
-    });
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -76,217 +77,199 @@ export function Settings() {
       try {
         const content = e.target?.result as string;
         const data: GistData = JSON.parse(content);
-
-        // 验证数据格式
         if (!data.recipes || !data.shoppingLists) {
           alert('文件格式不正确');
           return;
         }
-
         importData(data);
         setSuccessMessage(`导入成功！${data.recipes.length} 个菜谱，${data.shoppingLists.length} 个购物清单`);
-        setTimeout(() => setSuccessMessage(null), 5000);
+        setTimeout(() => setSuccessMessage(null), 3000);
       } catch {
-        alert('文件解析失败，请确保是有效的 JSON 文件');
+        alert('文件解析失败');
       }
     };
     reader.readAsText(file);
-
-    // 清空 input 以便重复选择同一文件
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const currentList = shoppingLists.find(l => l.id === currentListId);
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
-      {/* 头部 */}
-      <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 py-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+        <div className="max-w-lg mx-auto px-4 py-4">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+              className="p-2 -ml-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors"
             >
               <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-              设置
-            </h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">设置</h1>
           </div>
         </div>
       </div>
 
-      {/* 内容 */}
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-        {/* 成功提示 */}
+      <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
+        {/* Success Message */}
         {successMessage && (
-          <div className="flex items-center gap-2 p-4 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg">
-            <Check className="w-5 h-5" />
+          <div className="bg-green-500 text-white px-4 py-3 rounded-xl text-sm font-medium">
             {successMessage}
           </div>
         )}
 
-        {/* 错误提示 */}
+        {/* Error Message */}
         {error && (
-          <div className="flex items-center gap-2 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg">
-            <AlertCircle className="w-5 h-5" />
+          <div className="bg-red-500 text-white px-4 py-3 rounded-xl text-sm font-medium">
             {error}
           </div>
         )}
 
-        {/* 当前数据状态 */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+        {/* Data Status */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
-            <Database className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              当前数据状态
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                {recipes.length}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">菜谱</div>
+            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+              <Database className="w-5 h-5 text-blue-500" />
             </div>
-            <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                {shoppingLists.length}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">购物清单</div>
+            <div>
+              <h2 className="font-semibold text-gray-900 dark:text-white">数据状态</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">当前本地存储的内容</p>
             </div>
           </div>
 
-          {currentList && (
-            <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                当前清单: <span className="font-medium text-gray-900 dark:text-white">{currentList.name}</span>
-                <span className="ml-2">({currentList.items.length} 项)</span>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">{recipes.length}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">菜谱</div>
+            </div>
+            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">{shoppingLists.length}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">购物清单</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Cloud Sync */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+              <Cloud className="w-5 h-5 text-purple-500" />
+            </div>
+            <div className="flex-1">
+              <h2 className="font-semibold text-gray-900 dark:text-white">云端同步</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {isConfigured ? '已连接 GitHub' : '未配置'}
+              </p>
+            </div>
+          </div>
+
+          {!isConfigured ? (
+            <button
+              onClick={() => setShowGuide(true)}
+              className="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+            >
+              <Github className="w-5 h-5" />
+              开始设置
+            </button>
+          ) : (
+            <div className="space-y-3">
+              {/* Sync Status */}
+              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Gist ID</span>
+                  <code className="text-sm text-gray-900 dark:text-white font-mono">{settings.gistId?.slice(0, 12)}...</code>
+                </div>
+                {settings.lastSync && (
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">上次同步</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      {new Date(settings.lastSync).toLocaleString('zh-CN')}
+                    </span>
+                  </div>
+                )}
               </div>
+
+              {/* Sync Buttons */}
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => setShowConfirmSync('load')}
+                  disabled={isLoading}
+                  className="py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
+                >
+                  <Download className="w-5 h-5" />
+                  加载
+                </button>
+                <button
+                  onClick={() => setShowConfirmSync('save')}
+                  disabled={isLoading}
+                  className="py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
+                >
+                  <Upload className="w-5 h-5" />
+                  保存
+                </button>
+              </div>
+
+              {/* Help */}
+              <button
+                onClick={() => setShowGuide(true)}
+                className="w-full py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 flex items-center justify-center gap-1"
+              >
+                <HelpCircle className="w-4 h-4" />
+                查看设置指南
+              </button>
             </div>
           )}
         </div>
 
-        {/* GitHub 同步 */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <Github className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              GitHub 数据同步
-            </h2>
-          </div>
-
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            通过 GitHub Gist 同步数据，实现多人协作。需要具有 Gist 权限的 GitHub Token。
-          </p>
-
-          {/* 同步说明 */}
-          <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg text-sm text-yellow-700 dark:text-yellow-400">
-            <strong>使用说明：</strong><br />
-            1. 修改数据后，点击「同步到 Gist」上传<br />
-            2. 获取数据时，点击「从 Gist 加载」下载<br />
-            3. 同步包含菜谱和购物清单两部分
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                GitHub Personal Access Token
-              </label>
-              <input
-                type="password"
-                value={tokenInput}
-                onChange={(e) => setTokenInput(e.target.value)}
-                placeholder="ghp_xxxxxxxxxxxx"
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              />
-              <a
-                href="https://github.com/settings/tokens/new?description=Shopping%20Web&scopes=gist"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 mt-1 text-sm text-blue-500 hover:text-blue-600"
-              >
-                创建 Token <ExternalLink className="w-3 h-3" />
-              </a>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Gist ID（可选，用于加入已有的共享清单）
-              </label>
-              <input
-                type="text"
-                value={gistIdInput}
-                onChange={(e) => setGistIdInput(e.target.value)}
-                placeholder="留空则创建新 Gist"
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-              />
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={handleCreateGist}
-                disabled={isLoading || !tokenInput.trim()}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors"
-              >
-                <Github className="w-4 h-4" />
-                创建新 Gist
-              </button>
-
-              <button
-                onClick={handleLoadFromGist}
-                disabled={isLoading || !gistIdInput.trim() || !tokenInput.trim()}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors"
-              >
-                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-                从 Gist 加载
-              </button>
-
-              <button
-                onClick={handleSaveToGist}
-                disabled={isLoading || !settings.gistId}
-                className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 transition-colors"
-              >
-                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-                同步到 Gist
-              </button>
-            </div>
-
-            {settings.gistId && (
-              <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  当前 Gist ID: <code className="text-blue-500 select-all">{settings.gistId}</code>
-                </p>
-                {settings.lastSync && (
-                  <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
-                    上次同步: {new Date(settings.lastSync).toLocaleString('zh-CN')}
-                  </p>
-                )}
+        {/* Confirm Dialog */}
+        {showConfirmSync && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+            <div className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-xl">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                {showConfirmSync === 'load' ? '加载数据？' : '保存数据？'}
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
+                {showConfirmSync === 'load'
+                  ? '会用云端数据覆盖本地数据'
+                  : '会上传本地数据到云端，覆盖云端数据'}
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowConfirmSync(null)}
+                  className="flex-1 py-3 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  取消
+                </button>
+                <button
+                  onClick={showConfirmSync === 'load' ? handleLoadData : handleSaveData}
+                  className="flex-1 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+                >
+                  确认
+                </button>
               </div>
-            )}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* 本地备份 */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            本地备份
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            导出或导入数据文件。适合没有 GitHub 的朋友使用。
-          </p>
-          <div className="flex gap-3">
+        {/* Backup */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center">
+              <FileDown className="w-5 h-5 text-orange-500" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-gray-900 dark:text-white">本地备份</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">导出或导入 JSON 文件</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
             <button
               onClick={handleExportLocal}
-              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              className="py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
             >
-              导出数据
+              导出
             </button>
-            <label className="px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors cursor-pointer">
+            <label className="py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer text-center">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -294,25 +277,22 @@ export function Settings() {
                 onChange={handleImportLocal}
                 className="hidden"
               />
-              <Upload className="w-4 h-4 inline mr-1" />
-              导入数据
+              导入
             </label>
           </div>
         </div>
 
-        {/* 关于 */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            关于
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            购物清单助手 - 管理菜谱与购物清单的工具
-          </p>
-          <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
-            版本 1.0.3 - 修复 Token 同步问题
-          </p>
+        {/* Version */}
+        <div className="text-center text-xs text-gray-400 dark:text-gray-500 pt-4">
+          购物清单助手 · v1.1.0
         </div>
       </div>
+
+      <GitHubGuide
+        isOpen={showGuide}
+        onClose={() => setShowGuide(false)}
+        onComplete={handleGuideComplete}
+      />
     </div>
   );
 }
