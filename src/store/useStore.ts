@@ -315,7 +315,13 @@ export const useStore = create<AppState>()(
           recipes: state.recipes,
           shoppingLists: state.shoppingLists,
           currentListId: state.currentListId,
-          settings: state.settings,
+          // 不要共享 gistToken，每个用户使用自己的 token
+          settings: {
+            ingredientMerges: state.settings.ingredientMerges,
+            gistId: state.settings.gistId,
+            // 不包含 gistToken
+            lastSync: state.settings.lastSync,
+          },
         };
       },
 
