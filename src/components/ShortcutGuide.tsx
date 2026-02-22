@@ -15,13 +15,13 @@ export function ShortcutGuide({ isOpen, onClose }: ShortcutGuideProps) {
     {
       num: 1,
       title: '打开快捷指令 App',
-      description: '在 iPhone 或 iPad 上找到「快捷指令」App 并打开',
-      detail: '如果找不到，可以从 App Store 免费下载',
+      description: '在 iPhone、iPad 或 Mac 上找到「快捷指令」App 并打开',
+      detail: 'iOS 26 / macOS 26：在主屏幕或 App 资源库中搜索「快捷指令」',
     },
     {
       num: 2,
       title: '创建新快捷指令',
-      description: '点击右上角「+」按钮',
+      description: '点击右上角「+」或「新建快捷指令」按钮',
       detail: null,
     },
     {
@@ -74,7 +74,7 @@ export function ShortcutGuide({ isOpen, onClose }: ShortcutGuideProps) {
             </button>
           </div>
           <p className="text-sm text-white/80 mt-2">
-            设置后可将购物清单导出到提醒事项，每个物品单独一行可勾选
+            适用于 iOS 26 / macOS 26 · 设置后可将购物清单导出到提醒事项，每个物品单独可勾选
           </p>
         </div>
 
