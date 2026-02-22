@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Github, RefreshCw, Check, AlertCircle, ExternalLink, Database } from 'lucide-react';
+import { ArrowLeft, Github, RefreshCw, Check, AlertCircle, ExternalLink, Database, Upload } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { useGist } from '../hooks/useGist';
+import type { GistData } from '../types';
+import { useRef } from 'react';
 
 export function Settings() {
   const navigate = useNavigate();
-  const { settings, exportData, recipes, shoppingLists, currentListId } = useStore();
+  const { settings, exportData, recipes, shoppingLists, currentListId, importData } = useStore();
   const { isLoading, error, createGist, loadFromGist, saveToGist } = useGist();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [gistIdInput, setGistIdInput] = useState(settings.gistId || '');
   const [tokenInput, setTokenInput] = useState(settings.gistToken || '');
@@ -59,6 +62,37 @@ export function Settings() {
     a.download = `shopping-web-backup-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleImportLocal = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const data: GistData = JSON.parse(content);
+
+        // 验证数据格式
+        if (!data.recipes || !data.shoppingLists) {
+          alert('文件格式不正确');
+          return;
+        }
+
+        importData(data);
+        setSuccessMessage(`导入成功！${data.recipes.length} 个菜谱，${data.shoppingLists.length} 个购物清单`);
+        setTimeout(() => setSuccessMessage(null), 5000);
+      } catch {
+        alert('文件解析失败，请确保是有效的 JSON 文件');
+      }
+    };
+    reader.readAsText(file);
+
+    // 清空 input 以便重复选择同一文件
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const currentList = shoppingLists.find(l => l.id === currentListId);
@@ -240,14 +274,27 @@ export function Settings() {
             本地备份
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            导出所有数据到本地 JSON 文件（包含菜谱和购物清单）。
+            导出或导入数据文件。适合没有 GitHub 的朋友使用。
           </p>
-          <button
-            onClick={handleExportLocal}
-            className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-          >
-            导出数据
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handleExportLocal}
+              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+            >
+              导出数据
+            </button>
+            <label className="px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors cursor-pointer">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                onChange={handleImportLocal}
+                className="hidden"
+              />
+              <Upload className="w-4 h-4 inline mr-1" />
+              导入数据
+            </label>
+          </div>
         </div>
 
         {/* 关于 */}

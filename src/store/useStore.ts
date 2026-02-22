@@ -294,11 +294,16 @@ export const useStore = create<AppState>()(
 
       // 数据同步
       importData: (data) => {
+        const currentSettings = get().settings;
         set({
           recipes: data.recipes,
           shoppingLists: data.shoppingLists,
           currentListId: data.currentListId,
-          settings: data.settings,
+          // 保留本地的 gistToken，只同步 gistId 和其他设置
+          settings: {
+            ...data.settings,
+            gistToken: currentSettings.gistToken, // 保留自己的 token
+          },
         });
       },
 
