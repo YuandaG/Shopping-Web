@@ -38,6 +38,9 @@ export function Settings() {
 
     const success = await loadFromGist(gistIdInput.trim(), tokenInput.trim());
     if (success) {
+      // 确保 tokenInput 和 gistIdInput 保持同步
+      setTokenInput(tokenInput.trim());
+      setGistIdInput(gistIdInput.trim());
       setSuccessMessage('数据加载成功！请检查菜谱和购物清单');
       setTimeout(() => setSuccessMessage(null), 5000);
     }

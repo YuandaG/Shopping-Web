@@ -85,8 +85,10 @@ export function useGist(): UseGistReturn {
       }
 
       const data: GistData = JSON.parse(file.content);
-      importData(data);
+
+      // 先更新 token，再导入数据（这样 importData 能保留正确的 token）
       updateSettings({ gistId, gistToken: token, lastSync: Date.now() });
+      importData(data);
 
       return true;
     } catch (err) {
