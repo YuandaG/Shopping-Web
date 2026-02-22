@@ -3,12 +3,15 @@ import { INGREDIENT_CATEGORIES } from '../types';
 
 /**
  * 生成 Apple Reminders URL Scheme
- * 格式: x-apple-reminderkit://reminders/new?title=标题&notes=内容
+ * iOS 支持的格式：reminders://
  */
 export function generateRemindersUrl(
   listName: string,
   items: ShoppingItem[]
 ): string {
+  // 生成清单内容
+  const lines: string[] = [];
+
   // 按类别分组
   const groupedItems = new Map<string, ShoppingItem[]>();
   items.forEach((item) => {
@@ -19,28 +22,27 @@ export function generateRemindersUrl(
     groupedItems.set(categoryName, categoryItems);
   });
 
-  // 生成清单内容
-  const notes: string[] = [];
-
   groupedItems.forEach((categoryItems, categoryName) => {
-    notes.push(`【${categoryName}】`);
+    lines.push(`【${categoryName}】`);
     categoryItems.forEach((item) => {
-      const checkbox = item.checked ? '✅' : '⬜';
-      notes.push(`${checkbox} ${item.name}${item.quantity ? ` ${item.quantity}` : ''}`);
+      if (!item.checked) {
+        lines.push(`☐ ${item.name}${item.quantity ? ` ${item.quantity}` : ''}`);
+      }
     });
-    notes.push(''); // 空行分隔
   });
 
   const title = `购物清单: ${listName}`;
-  const notesText = notes.join('\n');
+  const notesText = lines.join('\n');
 
-  // 使用 x-apple-reminderkit URL scheme
+  // 使用 reminders:// URL scheme (iOS 13+)
+  // 格式：reminders://x-callback-url/create?title=xxx&notes=xxx
   const params = new URLSearchParams({
+    'x-success': window.location.href,
     title: title,
     notes: notesText,
   });
 
-  return `x-apple-reminderkit://reminders/new?${params.toString()}`;
+  return `reminders://x-callback-url/create?${params.toString()}`;
 }
 
 /**
@@ -49,9 +51,14 @@ export function generateRemindersUrl(
 export function exportToReminders(
   listName: string,
   items: ShoppingItem[]
-): void {
+): boolean {
   const url = generateRemindersUrl(listName, items);
-  window.location.href = url;
+
+  // 使用 window.open 而不是 location.href
+  const newWindow = window.open(url, '_self');
+
+  // 如果无法打开，返回 false
+  return newWindow !== null;
 }
 
 /**

@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Github, RefreshCw, Check, AlertCircle, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Github, RefreshCw, Check, AlertCircle, ExternalLink, Database } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { useGist } from '../hooks/useGist';
 
 export function Settings() {
   const navigate = useNavigate();
-  const { settings, exportData } = useStore();
+  const { settings, exportData, recipes, shoppingLists, currentListId } = useStore();
   const { isLoading, error, createGist, loadFromGist, saveToGist } = useGist();
 
   const [gistIdInput, setGistIdInput] = useState(settings.gistId || '');
@@ -22,8 +22,8 @@ export function Settings() {
     const gistId = await createGist(tokenInput.trim());
     if (gistId) {
       setGistIdInput(gistId);
-      setSuccessMessage('Gist 创建成功！');
-      setTimeout(() => setSuccessMessage(null), 3000);
+      setSuccessMessage('Gist 创建成功！请把 Gist ID 分享给朋友');
+      setTimeout(() => setSuccessMessage(null), 5000);
     }
   };
 
@@ -35,16 +35,16 @@ export function Settings() {
 
     const success = await loadFromGist(gistIdInput.trim(), tokenInput.trim());
     if (success) {
-      setSuccessMessage('数据加载成功！');
-      setTimeout(() => setSuccessMessage(null), 3000);
+      setSuccessMessage('数据加载成功！请检查菜谱和购物清单');
+      setTimeout(() => setSuccessMessage(null), 5000);
     }
   };
 
   const handleSaveToGist = async () => {
     const success = await saveToGist();
     if (success) {
-      setSuccessMessage('数据同步成功！');
-      setTimeout(() => setSuccessMessage(null), 3000);
+      setSuccessMessage('数据同步成功！包含 ' + recipes.length + ' 个菜谱和 ' + shoppingLists.length + ' 个购物清单');
+      setTimeout(() => setSuccessMessage(null), 5000);
     }
   };
 
@@ -61,8 +61,10 @@ export function Settings() {
     URL.revokeObjectURL(url);
   };
 
+  const currentList = shoppingLists.find(l => l.id === currentListId);
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
       {/* 头部 */}
       <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4">
@@ -98,6 +100,40 @@ export function Settings() {
           </div>
         )}
 
+        {/* 当前数据状态 */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <Database className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              当前数据状态
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                {recipes.length}
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">菜谱</div>
+            </div>
+            <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                {shoppingLists.length}
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">购物清单</div>
+            </div>
+          </div>
+
+          {currentList && (
+            <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                当前清单: <span className="font-medium text-gray-900 dark:text-white">{currentList.name}</span>
+                <span className="ml-2">({currentList.items.length} 项)</span>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* GitHub 同步 */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
@@ -110,6 +146,14 @@ export function Settings() {
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
             通过 GitHub Gist 同步数据，实现多人协作。需要具有 Gist 权限的 GitHub Token。
           </p>
+
+          {/* 同步说明 */}
+          <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg text-sm text-yellow-700 dark:text-yellow-400">
+            <strong>使用说明：</strong><br />
+            1. 修改数据后，点击「同步到 Gist」上传<br />
+            2. 获取数据时，点击「从 Gist 加载」下载<br />
+            3. 同步包含菜谱和购物清单两部分
+          </div>
 
           <div className="space-y-4">
             <div>
@@ -178,7 +222,7 @@ export function Settings() {
             {settings.gistId && (
               <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  当前 Gist ID: <code className="text-blue-500">{settings.gistId}</code>
+                  当前 Gist ID: <code className="text-blue-500 select-all">{settings.gistId}</code>
                 </p>
                 {settings.lastSync && (
                   <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
@@ -196,7 +240,7 @@ export function Settings() {
             本地备份
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            导出所有数据到本地 JSON 文件。
+            导出所有数据到本地 JSON 文件（包含菜谱和购物清单）。
           </p>
           <button
             onClick={handleExportLocal}
@@ -215,7 +259,7 @@ export function Settings() {
             购物清单助手 - 管理菜谱与购物清单的工具
           </p>
           <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
-            版本 1.0.0
+            版本 1.0.1
           </p>
         </div>
       </div>
