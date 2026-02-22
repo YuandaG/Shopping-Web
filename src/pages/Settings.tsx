@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Cloud, Download, Upload, Database, HelpCircle, FileDown, Github } from 'lucide-react';
+import { ArrowLeft, Cloud, Download, Upload, Database, FileDown, Github, Zap } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { useGist } from '../hooks/useGist';
 import { GitHubGuide } from '../components/GitHubGuide';
+import { ShortcutGuide } from '../components/ShortcutGuide';
 import type { GistData } from '../types';
 import { useRef } from 'react';
 
@@ -13,11 +14,11 @@ export function Settings() {
   const { isLoading, error, createGist, loadFromGist, saveToGist } = useGist();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [showGuide, setShowGuide] = useState(false);
+  const [showGitHubGuide, setShowGitHubGuide] = useState(false);
+  const [showShortcutGuide, setShowShortcutGuide] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showConfirmSync, setShowConfirmSync] = useState<'load' | 'save' | null>(null);
 
-  // 检查是否已配置
   const isConfigured = settings.gistId && settings.gistToken;
 
   const handleGuideComplete = async (token: string, gistId?: string) => {
@@ -109,7 +110,7 @@ export function Settings() {
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
         {/* Success Message */}
         {successMessage && (
           <div className="bg-green-500 text-white px-4 py-3 rounded-xl text-sm font-medium">
@@ -148,11 +149,28 @@ export function Settings() {
           </div>
         </div>
 
+        {/* Shortcuts Setup */}
+        <button
+          onClick={() => setShowShortcutGuide(true)}
+          className="w-full bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm text-left hover:shadow-md transition-shadow"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+              <Zap className="w-5 h-5 text-purple-500" />
+            </div>
+            <div className="flex-1">
+              <h2 className="font-semibold text-gray-900 dark:text-white">快捷指令设置</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">导出到提醒事项，逐项勾选</p>
+            </div>
+            <ArrowLeft className="w-5 h-5 text-gray-400 rotate-180" />
+          </div>
+        </button>
+
         {/* Cloud Sync */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
-              <Cloud className="w-5 h-5 text-purple-500" />
+            <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+              <Cloud className="w-5 h-5 text-green-500" />
             </div>
             <div className="flex-1">
               <h2 className="font-semibold text-gray-900 dark:text-white">云端同步</h2>
@@ -164,7 +182,7 @@ export function Settings() {
 
           {!isConfigured ? (
             <button
-              onClick={() => setShowGuide(true)}
+              onClick={() => setShowGitHubGuide(true)}
               className="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
             >
               <Github className="w-5 h-5" />
@@ -172,7 +190,6 @@ export function Settings() {
             </button>
           ) : (
             <div className="space-y-3">
-              {/* Sync Status */}
               <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Gist ID</span>
@@ -188,7 +205,6 @@ export function Settings() {
                 )}
               </div>
 
-              {/* Sync Buttons */}
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => setShowConfirmSync('load')}
@@ -208,12 +224,10 @@ export function Settings() {
                 </button>
               </div>
 
-              {/* Help */}
               <button
-                onClick={() => setShowGuide(true)}
+                onClick={() => setShowGitHubGuide(true)}
                 className="w-full py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 flex items-center justify-center gap-1"
               >
-                <HelpCircle className="w-4 h-4" />
                 查看设置指南
               </button>
             </div>
@@ -284,14 +298,19 @@ export function Settings() {
 
         {/* Version */}
         <div className="text-center text-xs text-gray-400 dark:text-gray-500 pt-4">
-          购物清单助手 · v1.1.0
+          购物清单助手 · v1.2.0
         </div>
       </div>
 
       <GitHubGuide
-        isOpen={showGuide}
-        onClose={() => setShowGuide(false)}
+        isOpen={showGitHubGuide}
+        onClose={() => setShowGitHubGuide(false)}
         onComplete={handleGuideComplete}
+      />
+
+      <ShortcutGuide
+        isOpen={showShortcutGuide}
+        onClose={() => setShowShortcutGuide(false)}
       />
     </div>
   );
