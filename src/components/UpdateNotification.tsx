@@ -1,46 +1,29 @@
-import { useState, useEffect } from 'react';
 import { RefreshCw, X } from 'lucide-react';
+import { useRegisterSW } from 'virtual:pwa-register/react';
 import { useLanguage } from '../i18n';
 
 export function UpdateNotification() {
-  const [needRefresh, setNeedRefresh] = useState(false);
-  const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
   const { language } = useLanguage();
 
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.ready.then((reg) => {
-        setRegistration(reg);
-      });
-
-      // Check for updates
-      navigator.serviceWorker.getRegistration().then((reg) => {
-        if (reg) {
-          reg.addEventListener('updatefound', () => {
-            const newWorker = reg.installing;
-            if (newWorker) {
-              newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  setNeedRefresh(true);
-                }
-              });
-            }
-          });
-        }
-      });
-
-      // Listen for controller change (when update is activated)
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        window.location.reload();
-      });
-    }
-  }, []);
+  const {
+    needRefresh: [needRefresh, setNeedRefresh],
+    updateServiceWorker,
+  } = useRegisterSW({
+    onRegistered(r) {
+      // Check for updates every hour
+      if (r) {
+        setInterval(() => {
+          r.update();
+        }, 60 * 60 * 1000);
+      }
+    },
+    onRegisterError(error) {
+      console.error('SW registration error:', error);
+    },
+  });
 
   const handleUpdate = () => {
-    if (registration?.waiting) {
-      // Send message to the waiting service worker to activate
-      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-    }
+    updateServiceWorker(true);
   };
 
   const handleClose = () => {
