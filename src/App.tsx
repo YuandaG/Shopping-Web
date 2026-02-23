@@ -1,6 +1,7 @@
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { Navigation } from './components/Navigation';
 import { Sidebar } from './components/Sidebar';
+import { UpdateNotification } from './components/UpdateNotification';
 import { Home } from './pages/Home';
 import { Recipes } from './pages/Recipes';
 import { ShoppingListPage } from './pages/ShoppingList';
@@ -9,6 +10,7 @@ import { Settings } from './pages/Settings';
 function App() {
   return (
     <HashRouter>
+      <UpdateNotification />
       <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Desktop Sidebar */}
         <Sidebar />
