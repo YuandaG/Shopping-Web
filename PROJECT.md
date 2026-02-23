@@ -65,6 +65,8 @@ Shopping-Web/
 │   ├── types/               # TypeScript 类型
 │   │   └── index.ts             # 所有类型定义
 │   │
+│   ├── constants.ts         # 常量定义（版本号等）
+│   │
 │   ├── App.tsx              # 主应用组件
 │   └── main.tsx             # 入口文件
 │
