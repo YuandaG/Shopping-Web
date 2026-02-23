@@ -104,3 +104,42 @@ export interface AddIngredientsToListInput {
   recipeName: string;
   ingredients: Ingredient[];
 }
+
+// 餐次类型
+export type MealType = 'breakfast' | 'lunch' | 'dinner';
+
+// 餐次配置
+export const MEAL_TYPES: { id: MealType; name: string; icon: string }[] = [
+  { id: 'breakfast', name: '早餐', icon: '🌅' },
+  { id: 'lunch', name: '午餐', icon: '☀️' },
+  { id: 'dinner', name: '晚餐', icon: '🌙' },
+];
+
+// 单餐项（可以是菜谱引用或自定义菜品）
+export interface MealItem {
+  id: string;
+  type: 'recipe' | 'custom';
+  recipeId?: string;       // 如果是菜谱引用
+  customName?: string;     // 如果是自定义菜品
+  customIngredients?: Omit<Ingredient, 'id'>[];  // 自定义菜品的食材
+}
+
+// 一天的餐食计划
+export interface DayMealPlan {
+  date: string;            // YYYY-MM-DD
+  meals: {
+    breakfast: MealItem[];
+    lunch: MealItem[];
+    dinner: MealItem[];
+  };
+}
+
+// 周计划
+export interface WeeklyMealPlan {
+  id: string;
+  weekStartDate: string;   // YYYY-MM-DD (周一)
+  days: DayMealPlan[];
+  createdAt: number;
+  updatedAt: number;
+}
+

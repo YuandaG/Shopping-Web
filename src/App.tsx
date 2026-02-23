@@ -5,6 +5,7 @@ import { UpdateNotification } from './components/UpdateNotification';
 import { Home } from './pages/Home';
 import { Recipes } from './pages/Recipes';
 import { ShoppingListPage } from './pages/ShoppingList';
+import { MealPlanPage } from './pages/MealPlan';
 import { Settings } from './pages/Settings';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/recipes" element={<Recipes />} />
             <Route path="/shopping" element={<ShoppingListPage />} />
+            <Route path="/meal-plan" element={<MealPlanPage />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>
         </div>

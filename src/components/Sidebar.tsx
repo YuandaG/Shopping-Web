@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, BookOpen, ShoppingCart, Settings, ChefHat } from 'lucide-react';
+import { Home, BookOpen, ShoppingCart, Calendar, Settings, ChefHat } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { useLanguage } from '../i18n';
 import { APP_VERSION } from '../constants';
@@ -22,6 +22,7 @@ export function Sidebar() {
       label: t.nav.list,
       badge: uncheckedCount > 0 ? uncheckedCount : undefined,
     },
+    { path: '/meal-plan', icon: Calendar, label: t.nav.mealPlan },
     { path: '/settings', icon: Settings, label: t.nav.settings },
   ];
 

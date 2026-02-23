@@ -12,6 +12,7 @@ import type {
   AddIngredientsToListInput,
   GistData,
   CategoryId,
+  WeeklyMealPlan,
 } from '../types';
 import { getCanonicalName } from '../utils/ingredientMerge';
 
@@ -22,6 +23,9 @@ interface AppState {
   // 购物清单数据
   shoppingLists: ShoppingList[];
   currentListId: string | null;
+
+  // 周菜单数据
+  mealPlan: WeeklyMealPlan | null;
 
   // 设置
   settings: AppSettings;
@@ -46,6 +50,9 @@ interface AppState {
   toggleItemChecked: (listId: string, itemId: string) => void;
   clearCheckedItems: (listId: string) => void;
 
+  // 周菜单操作
+  updateMealPlan: (updates: Partial<WeeklyMealPlan>) => void;
+
   // 数据同步
   importData: (data: GistData) => void;
   exportData: () => GistData;
@@ -60,6 +67,7 @@ export const useStore = create<AppState>()(
       recipes: [],
       shoppingLists: [],
       currentListId: null,
+      mealPlan: null,
       settings: {
         ingredientMerges: [],
       },
@@ -297,6 +305,32 @@ export const useStore = create<AppState>()(
               : list
           ),
         }));
+      },
+
+      // 周菜单操作
+      updateMealPlan: (updates) => {
+        set((state) => {
+          const now = Date.now();
+          if (!state.mealPlan) {
+            return {
+              mealPlan: {
+                id: uuidv4(),
+                weekStartDate: updates.weekStartDate || '',
+                days: updates.days || [],
+                createdAt: now,
+                updatedAt: now,
+                ...updates,
+              },
+            };
+          }
+          return {
+            mealPlan: {
+              ...state.mealPlan,
+              ...updates,
+              updatedAt: now,
+            },
+          };
+        });
       },
 
       // 数据同步
