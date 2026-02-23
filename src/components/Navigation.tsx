@@ -24,30 +24,28 @@ export function Navigation() {
   ];
 
   return (
-    // Hidden on desktop (lg+), shown on mobile
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-t border-gray-100 dark:border-gray-800 z-40 safe-area-bottom">
-      <div className="max-w-lg mx-auto px-1">
-        <div className="flex justify-around py-0.5">
+    // Hidden on desktop (lg+), shown on mobile - floating pill style
+    <nav className="lg:hidden fixed bottom-4 left-4 right-4 z-40">
+      <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200/50 dark:border-gray-700/50 px-2 py-2 max-w-md mx-auto">
+        <div className="flex justify-around items-center">
           {navItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `flex flex-col items-center py-1 px-2 rounded-xl transition-all duration-200 relative group cursor-pointer ${
+                `relative flex items-center justify-center w-12 h-10 rounded-xl transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? 'text-blue-500'
-                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 active:scale-95'
+                    ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 active:scale-90'
                 }`
               }
+              title={item.label}
             >
               {({ isActive }) => (
                 <>
-                  <div className={`p-1 rounded-lg transition-all duration-200 ${isActive ? 'bg-blue-100 dark:bg-blue-900/30' : 'group-hover:bg-gray-100 dark:group-hover:bg-gray-800'}`}>
-                    <item.icon className="w-5 h-5" />
-                  </div>
-                  <span className="text-[9px] mt-0.5 font-medium">{item.label}</span>
+                  <item.icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
                   {item.badge && (
-                    <span className="absolute top-0 right-0 min-w-[14px] h-[14px] px-0.5 bg-red-500 text-white text-[8px] font-medium rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
                       {item.badge > 99 ? '99+' : item.badge}
                     </span>
                   )}

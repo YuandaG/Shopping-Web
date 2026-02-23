@@ -17,7 +17,7 @@ function App() {
         <Sidebar />
 
         {/* Main Content Area */}
-        <div className="flex-1 lg:pb-0 pb-20">
+        <div className="flex-1 lg:pb-0 pb-24">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/recipes" element={<Recipes />} />
