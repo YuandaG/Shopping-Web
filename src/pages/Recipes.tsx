@@ -65,18 +65,18 @@ export function Recipes() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 lg:pb-6">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
-        <div className="max-w-lg mx-auto px-4 py-4">
+        <div className="max-w-lg lg:max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t.recipes.title}</h1>
+            <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">{t.recipes.title}</h1>
             <button
               onClick={() => setShowForm(true)}
               className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-colors"
             >
               <Plus className="w-5 h-5" />
-              {t.recipes.new}
+              <span className="hidden sm:inline">{t.recipes.new}</span>
             </button>
           </div>
 
@@ -110,7 +110,7 @@ export function Recipes() {
       </div>
 
       {/* Content */}
-      <div className="max-w-lg mx-auto px-4 py-4">
+      <div className="max-w-lg lg:max-w-4xl mx-auto px-4 py-4">
         {filteredRecipes.length === 0 ? (
           <div className="text-center py-16">
             <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -126,7 +126,8 @@ export function Recipes() {
             )}
           </div>
         ) : (
-          <div className="grid gap-3">
+          /* Grid: 1 col mobile, 2 cols tablet, 3 cols desktop */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
             {filteredRecipes.map((recipe) => (
               <RecipeCard
                 key={recipe.id}

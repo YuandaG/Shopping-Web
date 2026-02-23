@@ -1,12 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, ShoppingCart, Settings, ChevronRight, Cloud } from 'lucide-react';
+import { BookOpen, ShoppingCart, Settings, Cloud, ChefHat } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { useLanguage } from '../i18n';
 
 export function Home() {
   const navigate = useNavigate();
   const { recipes, shoppingLists, currentListId, settings } = useStore();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const currentList = shoppingLists.find((l) => l.id === currentListId);
   const totalItems = currentList?.items.length || 0;
@@ -15,18 +15,25 @@ export function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Hero */}
+      {/* Hero - Full width on desktop */}
       <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white">
-        <div className="max-w-lg mx-auto px-4 py-12">
-          <h1 className="text-3xl font-bold mb-2">{t.home.title}</h1>
-          <p className="text-gray-400">{t.home.subtitle}</p>
+        <div className="max-w-lg lg:max-w-4xl mx-auto px-4 py-12 lg:py-20">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-14 h-14 lg:w-16 lg:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
+              <ChefHat className="w-8 h-8 lg:w-10 lg:h-10 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl lg:text-4xl font-bold">{t.home.title}</h1>
+              <p className="text-gray-400 lg:text-lg">{t.home.subtitle}</p>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-lg mx-auto px-4 py-6 -mt-6">
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
+      <div className="max-w-lg lg:max-w-4xl mx-auto px-4 py-6 -mt-6">
+        {/* Quick Stats - 4 columns on desktop */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
           <button
             onClick={() => navigate('/recipes')}
             className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm text-left hover:shadow-md transition-shadow"
@@ -48,59 +55,76 @@ export function Home() {
             <div className="text-2xl font-bold text-gray-900 dark:text-white">{checkedItems}/{totalItems}</div>
             <div className="text-sm text-gray-500 dark:text-gray-400">{t.home.shoppingList}</div>
           </button>
+
+          <button
+            onClick={() => navigate('/settings')}
+            className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm text-left hover:shadow-md transition-shadow"
+          >
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+              isConfigured ? 'bg-green-100 dark:bg-green-900/30' : 'bg-gray-100 dark:bg-gray-700'
+            }`}>
+              <Cloud className={`w-6 h-6 ${isConfigured ? 'text-green-500' : 'text-gray-400'}`} />
+            </div>
+            <div className="text-lg font-bold text-gray-900 dark:text-white mt-3">
+              {isConfigured ? (language === 'zh' ? '已连接' : 'Connected') : (language === 'zh' ? '未连接' : 'Not connected')}
+            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">{t.home.cloudSync}</div>
+          </button>
+
+          <button
+            onClick={() => navigate('/settings')}
+            className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm text-left hover:shadow-md transition-shadow"
+          >
+            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center mb-3">
+              <Settings className="w-6 h-6 text-purple-500" />
+            </div>
+            <div className="text-lg font-bold text-gray-900 dark:text-white mt-3">{t.nav.settings}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">{t.settings.backup}</div>
+          </button>
         </div>
 
-        {/* Sync Status */}
-        <button
-          onClick={() => navigate('/settings')}
-          className="w-full bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow mb-6"
-        >
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-            isConfigured ? 'bg-green-100 dark:bg-green-900/30' : 'bg-gray-100 dark:bg-gray-700'
-          }`}>
-            <Cloud className={`w-5 h-5 ${isConfigured ? 'text-green-500' : 'text-gray-400'}`} />
-          </div>
-          <div className="flex-1 text-left">
-            <div className="font-medium text-gray-900 dark:text-white">{t.home.cloudSync}</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              {isConfigured ? t.home.configured : t.home.notConfigured}
+        {/* Tips - 2 columns on desktop */}
+        <div className="lg:grid lg:grid-cols-2 lg:gap-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-3">{t.home.tips}</h3>
+            <div className="space-y-3">
+              {[
+                { num: 1, text: t.home.tip1 },
+                { num: 2, text: t.home.tip2 },
+                { num: 3, text: t.home.tip3 },
+                { num: 4, text: t.home.tip4 },
+              ].map((item) => (
+                <div key={item.num} className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                  <span className="w-6 h-6 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs font-medium text-gray-500">
+                    {item.num}
+                  </span>
+                  {item.text}
+                </div>
+              ))}
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-gray-400" />
-        </button>
 
-        {/* Settings */}
-        <button
-          onClick={() => navigate('/settings')}
-          className="w-full bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow"
-        >
-          <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center">
-            <Settings className="w-5 h-5 text-gray-500" />
-          </div>
-          <div className="flex-1 text-left">
-            <div className="font-medium text-gray-900 dark:text-white">{t.nav.settings}</div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">{t.settings.backup}, {t.settings.import}</div>
-          </div>
-          <ChevronRight className="w-5 h-5 text-gray-400" />
-        </button>
-
-        {/* Tips */}
-        <div className="mt-8 bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm">
-          <h3 className="font-semibold text-gray-900 dark:text-white mb-3">{t.home.tips}</h3>
-          <div className="space-y-3">
-            {[
-              { num: 1, text: t.home.tip1 },
-              { num: 2, text: t.home.tip2 },
-              { num: 3, text: t.home.tip3 },
-              { num: 4, text: t.home.tip4 },
-            ].map((item) => (
-              <div key={item.num} className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
-                <span className="w-6 h-6 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs font-medium text-gray-500">
-                  {item.num}
-                </span>
-                {item.text}
-              </div>
-            ))}
+          {/* Quick Actions on Desktop */}
+          <div className="hidden lg:block bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm">
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
+              {language === 'zh' ? '快速操作' : 'Quick Actions'}
+            </h3>
+            <div className="space-y-2">
+              <button
+                onClick={() => navigate('/recipes')}
+                className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-colors"
+              >
+                <BookOpen className="w-5 h-5" />
+                {language === 'zh' ? '浏览菜谱' : 'Browse Recipes'}
+              </button>
+              <button
+                onClick={() => navigate('/shopping')}
+                className="w-full py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-colors"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                {language === 'zh' ? '查看清单' : 'View List'}
+              </button>
+            </div>
           </div>
         </div>
       </div>

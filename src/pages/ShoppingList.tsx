@@ -115,10 +115,10 @@ export function ShoppingListPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 lg:pb-6">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
-        <div className="max-w-lg mx-auto px-4 py-4">
+        <div className="max-w-lg lg:max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {showHistory ? (
@@ -204,12 +204,12 @@ export function ShoppingListPage() {
       </div>
 
       {/* Content */}
-      <div className="max-w-lg mx-auto px-4 py-4">
+      <div className="max-w-lg lg:max-w-4xl mx-auto px-4 py-4">
         {showHistory ? (
-          /* History View */
-          <div className="space-y-3">
+          /* History View - 2 columns on desktop */
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {shoppingLists.length === 0 ? (
-              <div className="text-center py-12 text-gray-400">{t.shopping.noHistory}</div>
+              <div className="col-span-full text-center py-12 text-gray-400">{t.shopping.noHistory}</div>
             ) : (
               shoppingLists.map((list) => (
                 <div key={list.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">

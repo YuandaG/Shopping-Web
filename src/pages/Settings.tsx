@@ -100,23 +100,23 @@ export function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24 lg:pb-6">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
-        <div className="max-w-lg mx-auto px-4 py-4">
+        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 -ml-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors"
+              className="p-2 -ml-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors lg:hidden"
             >
               <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t.settings.title}</h1>
+            <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">{t.settings.title}</h1>
           </div>
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
+      <div className="max-w-lg lg:max-w-2xl mx-auto px-4 py-6 space-y-4">
         {/* Success Message */}
         {successMessage && (
           <div className="bg-green-500 text-white px-4 py-3 rounded-xl text-sm font-medium">

@@ -1,6 +1,6 @@
 # Shopping Web - 购物清单管理应用
 
-> 当前版本: v1.4.0 | 最后更新: 2026-02-22
+> 当前版本: v1.5.0 | 最后更新: 2026-02-23
 
 ## 项目概述
 
@@ -36,7 +36,8 @@ Shopping-Web/
 │   ├── components/          # 可复用组件
 │   │   ├── ExportButton.tsx     # 导出按钮（Reminders/剪贴板）
 │   │   ├── GitHubGuide.tsx      # GitHub 设置向导
-│   │   ├── Navigation.tsx       # 底部导航栏
+│   │   ├── Navigation.tsx       # 底部导航栏（移动端）
+│   │   ├── Sidebar.tsx          # 侧边栏导航（桌面端）
 │   │   ├── RecipeCard.tsx       # 菜谱卡片
 │   │   ├── RecipeForm.tsx       # 菜谱表单
 │   │   └── ShortcutGuide.tsx    # 快捷指令设置指南
