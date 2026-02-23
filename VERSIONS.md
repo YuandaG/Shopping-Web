@@ -7,20 +7,29 @@
 ## v1.5.0 (2026-02-23) - 当前版本
 
 ### 新增功能
-- ✨ 桌面端响应式布局
-- ✨ 侧边栏导航（桌面端）
-- ✨ 菜谱页面网格布局（平板/桌面）
-- ✨ 首页四栏统计卡片（桌面端）
-- ✨ 设置页面两列布局（桌面端）
+- ✨ **深色模式** - 浅色/深色/跟随系统切换
+- ✨ **菜谱图片** - 支持 URL 或本地上传（Base64，最大 2MB）
+- ✨ **PWA 离线支持** - 可安装到桌面，支持离线访问
+- ✨ **智能食材合并** - 相似名称检测 + 手动合并规则
+- ✨ **更新提示** - PWA 新版本自动提示刷新
+- ✨ 桌面端响应式布局（侧边栏导航）
+- ✨ 菜谱页面网格布局
+- ✨ 悬停动效优化
 
 ### 技术改进
-- 新增 `src/components/Sidebar.tsx` 桌面侧边栏组件
-- 使用 Tailwind 响应式断点 (sm/md/lg)
-- 移动端保持底部导航，桌面端使用侧边栏
+- 新增 `src/theme/` 主题模块
+- 新增 `src/utils/ingredientMerge.ts` 食材合并算法
+- 新增 `src/components/IngredientMergeManager.tsx`
+- 新增 `src/components/UpdateNotification.tsx`
+- 新增 `public/pwa-*.svg` PWA 图标
+- 配置 `vite-plugin-pwa`
+- Tailwind CSS 4 深色模式配置
 
-### Git Commit
+### Git Commits
 ```
-c40ef09 Add desktop responsive layout (v1.5.0)
+21cad64 Release v1.5.0: Dark mode, recipe images, PWA, and ingredient merging
+42f282d Fix dark mode for Tailwind CSS 4
+a43c503 Add PWA update notification banner
 ```
 
 ---
@@ -76,11 +85,6 @@ f1d2900 Add shortcut guide and improve UI
 - 修复 Reminders URL scheme 无效问题
 - 使用快捷指令替代直接 URL scheme
 
-### Git Commit
-```
-（之前版本，未记录具体 commit）
-```
-
 ---
 
 ## v1.1.0 (2026-02-19)
@@ -93,11 +97,6 @@ f1d2900 Add shortcut guide and improve UI
 ### Bug 修复
 - 修复 "Bad credentials" 错误（Authorization header 格式）
 - 修复 Token 加载后消失问题
-
-### Git Commit
-```
-（之前版本，未记录具体 commit）
-```
 
 ---
 
@@ -117,11 +116,6 @@ f1d2900 Add shortcut guide and improve UI
 - Tailwind CSS 4
 - Zustand（状态管理）
 - GitHub Pages 部署
-
-### Git Commit
-```
-（初始版本）
-```
 
 ---
 
@@ -144,14 +138,15 @@ git checkout -b rollback-v<version> <commit-hash>
 
 | 版本 | Commit Hash |
 |------|-------------|
+| v1.5.0 | 21cad64 |
 | v1.4.0 | d0e6a52 |
 | v1.3.0 | f1d2900 |
 
 ---
 
-## 下一版本计划 (v1.5.0)
+## 下一版本计划 (v1.6.0)
 
-- [ ] 食材智能合并（相似名称检测）
-- [ ] 菜谱图片支持
-- [ ] 深色模式切换
-- [ ] PWA 离线支持
+- [ ] 食材单位智能换算（500g + 300g = 800g）
+- [ ] 菜谱步骤/做法支持
+- [ ] 购物清单分享（生成链接）
+- [ ] 更多 PWA 功能（推送通知）
