@@ -27,7 +27,7 @@ export function RecipeCard({
   );
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    <div className="group bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-xl hover:scale-[1.02] border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200 cursor-pointer">
       <div className="p-4">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">

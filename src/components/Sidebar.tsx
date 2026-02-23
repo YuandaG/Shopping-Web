@@ -54,17 +54,17 @@ export function Sidebar() {
               <NavLink
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-xl transition-all relative group ${
+                  `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 relative group cursor-pointer ${
                     isActive
-                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:shadow-sm hover:scale-[1.02]'
                   }`
                 }
               >
                 {({ isActive }) => (
                   <>
-                    <div className={`p-2 rounded-lg transition-colors ${
-                      isActive ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-gray-100 dark:bg-gray-800 group-hover:bg-gray-200 dark:group-hover:bg-gray-700'
+                    <div className={`p-2 rounded-lg transition-all duration-200 ${
+                      isActive ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-gray-100 dark:bg-gray-800 group-hover:scale-110 group-hover:bg-gray-200 dark:group-hover:bg-gray-700'
                     }`}>
                       <item.icon className="w-5 h-5" />
                     </div>
@@ -85,7 +85,7 @@ export function Sidebar() {
       {/* Footer */}
       <div className="p-4 border-t border-gray-100 dark:border-gray-800">
         <div className="text-xs text-gray-400 text-center">
-          Shopping List Assistant · v1.4.0
+          Shopping List Assistant · v1.5.0
         </div>
       </div>
     </aside>

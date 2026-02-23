@@ -36,16 +36,16 @@ export function Navigation() {
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `flex flex-col items-center py-2 px-4 rounded-xl transition-all relative ${
+                `flex flex-col items-center py-2 px-4 rounded-xl transition-all duration-200 relative group cursor-pointer ${
                   isActive
                     ? 'text-blue-500'
-                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 active:scale-95'
                 }`
               }
             >
               {({ isActive }) => (
                 <>
-                  <div className={`p-1.5 rounded-xl transition-colors ${isActive ? 'bg-blue-100 dark:bg-blue-900/30' : ''}`}>
+                  <div className={`p-1.5 rounded-xl transition-all duration-200 ${isActive ? 'bg-blue-100 dark:bg-blue-900/30' : 'group-hover:bg-gray-100 dark:group-hover:bg-gray-800'}`}>
                     <item.icon className="w-5 h-5" />
                   </div>
                   <span className="text-[10px] mt-0.5 font-medium">{item.label}</span>

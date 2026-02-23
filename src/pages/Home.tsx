@@ -36,9 +36,9 @@ export function Home() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 mb-6 lg:mb-8">
           <button
             onClick={() => navigate('/recipes')}
-            className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm text-left hover:shadow-md transition-shadow"
+            className="group bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm text-left hover:shadow-lg hover:scale-[1.02] hover:border-blue-200 dark:hover:border-blue-800 border-2 border-transparent transition-all duration-200 cursor-pointer"
           >
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-3">
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
               <BookOpen className="w-6 h-6 text-blue-500" />
             </div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">{recipes.length}</div>
@@ -47,9 +47,9 @@ export function Home() {
 
           <button
             onClick={() => navigate('/shopping')}
-            className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm text-left hover:shadow-md transition-shadow"
+            className="group bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm text-left hover:shadow-lg hover:scale-[1.02] hover:border-green-200 dark:hover:border-green-800 border-2 border-transparent transition-all duration-200 cursor-pointer"
           >
-            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center mb-3">
+            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
               <ShoppingCart className="w-6 h-6 text-green-500" />
             </div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white">{checkedItems}/{totalItems}</div>
@@ -58,9 +58,9 @@ export function Home() {
 
           <button
             onClick={() => navigate('/settings')}
-            className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm text-left hover:shadow-md transition-shadow"
+            className="group bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm text-left hover:shadow-lg hover:scale-[1.02] hover:border-emerald-200 dark:hover:border-emerald-800 border-2 border-transparent transition-all duration-200 cursor-pointer"
           >
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform ${
               isConfigured ? 'bg-green-100 dark:bg-green-900/30' : 'bg-gray-100 dark:bg-gray-700'
             }`}>
               <Cloud className={`w-6 h-6 ${isConfigured ? 'text-green-500' : 'text-gray-400'}`} />
@@ -73,9 +73,9 @@ export function Home() {
 
           <button
             onClick={() => navigate('/settings')}
-            className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm text-left hover:shadow-md transition-shadow"
+            className="group bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm text-left hover:shadow-lg hover:scale-[1.02] hover:border-purple-200 dark:hover:border-purple-800 border-2 border-transparent transition-all duration-200 cursor-pointer"
           >
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center mb-3">
+            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
               <Settings className="w-6 h-6 text-purple-500" />
             </div>
             <div className="text-lg font-bold text-gray-900 dark:text-white mt-3">{t.nav.settings}</div>
