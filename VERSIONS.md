@@ -20,7 +20,7 @@
 
 ### Git Commit
 ```
-（待提交）
+c40ef09 Add desktop responsive layout (v1.5.0)
 ```
 
 ---
