@@ -2,6 +2,18 @@ import type { ShoppingItem } from '../types';
 import { INGREDIENT_CATEGORIES } from '../types';
 
 /**
+ * 格式化单个物品的文本，包含来源菜谱
+ * 例如：西红柿 (2) -- 油焖鸡，番茄炒蛋
+ */
+function formatItemWithSource(item: ShoppingItem): string {
+  let text = item.quantity ? `${item.name} (${item.quantity})` : item.name;
+  if (item.fromRecipe) {
+    text += ` -- ${item.fromRecipe}`;
+  }
+  return text;
+}
+
+/**
  * 生成购物清单文本（每行一个物品，方便粘贴到 Reminders）
  */
 export function generateTextList(
@@ -26,9 +38,7 @@ export function generateTextList(
   groupedItems.forEach((categoryItems, categoryName) => {
     lines.push(`--- ${categoryName} ---`);
     categoryItems.forEach((item) => {
-      // 每个物品单独一行，格式：物品名 数量
-      const text = item.quantity ? `${item.name} (${item.quantity})` : item.name;
-      lines.push(text);
+      lines.push(formatItemWithSource(item));
     });
     lines.push(''); // 空行分隔类别
   });
@@ -42,7 +52,7 @@ export function generateTextList(
 export function generateRemindersText(items: ShoppingItem[]): string {
   const uncheckedItems = items.filter((item) => !item.checked);
   return uncheckedItems
-    .map((item) => item.quantity ? `${item.name} (${item.quantity})` : item.name)
+    .map((item) => formatItemWithSource(item))
     .join('\n');
 }
 
