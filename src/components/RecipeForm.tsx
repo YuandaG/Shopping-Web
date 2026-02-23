@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus, X, ChevronDown } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Plus, X, ChevronDown, Image as ImageIcon, Upload } from 'lucide-react';
 import type { Recipe, CategoryId, CreateRecipeInput } from '../types';
 import { INGREDIENT_CATEGORIES } from '../types';
 import { useLanguage } from '../i18n';
@@ -20,8 +20,10 @@ interface IngredientInput {
 
 export function RecipeForm({ recipe, onSubmit, onCancel }: RecipeFormProps) {
   const { t, language } = useLanguage();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState(recipe?.name || '');
   const [description, setDescription] = useState(recipe?.description || '');
+  const [image, setImage] = useState(recipe?.image || '');
   const [ingredients, setIngredients] = useState<IngredientInput[]>(
     recipe?.ingredients.map((ing) => ({ ...ing })) || [
       { id: uuidv4(), name: '', quantity: '', category: 'other' },
@@ -63,6 +65,31 @@ export function RecipeForm({ recipe, onSubmit, onCancel }: RecipeFormProps) {
     setTags(tags.filter((t) => t !== tag));
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      alert(language === 'zh' ? '图片大小不能超过 2MB' : 'Image size cannot exceed 2MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      setImage(base64);
+    };
+    reader.readAsDataURL(file);
+
+    // Reset input
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeImage = () => {
+    setImage('');
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -81,6 +108,7 @@ export function RecipeForm({ recipe, onSubmit, onCancel }: RecipeFormProps) {
     onSubmit({
       name: name.trim(),
       description: description.trim() || undefined,
+      image: image.trim() || undefined,
       ingredients: validIngredients.map((ing) => ({
         name: ing.name.trim(),
         quantity: ing.quantity.trim(),
@@ -135,6 +163,73 @@ export function RecipeForm({ recipe, onSubmit, onCancel }: RecipeFormProps) {
           rows={2}
           className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white resize-none"
         />
+      </div>
+
+      {/* 图片 */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          {t.recipeForm.image}
+        </label>
+
+        {/* Image Preview */}
+        {image && (
+          <div className="relative mb-3 inline-block">
+            <img
+              src={image}
+              alt={name || 'Recipe'}
+              className="w-32 h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-600"
+            />
+            <button
+              type="button"
+              onClick={removeImage}
+              className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Image Input Options */}
+        <div className="space-y-3">
+          {/* URL Input */}
+          <div className="flex gap-2">
+            <div className="flex-1 relative">
+              <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="url"
+                value={image.startsWith('data:') ? '' : image}
+                onChange={(e) => setImage(e.target.value)}
+                placeholder={t.recipeForm.imageUrlPlaceholder}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white text-sm"
+                disabled={image.startsWith('data:')}
+              />
+            </div>
+          </div>
+
+          {/* File Upload */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-gray-200 dark:bg-gray-600" />
+            <span className="text-xs text-gray-400">{language === 'zh' ? '或' : 'or'}</span>
+            <div className="flex-1 h-px bg-gray-200 dark:bg-gray-600" />
+          </div>
+          <div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-2 px-4 py-2 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:border-blue-500 hover:text-blue-500 transition-colors"
+            >
+              <Upload className="w-4 h-4" />
+              {t.recipeForm.imageUpload}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* 食材列表 */}

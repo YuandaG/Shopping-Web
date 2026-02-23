@@ -28,6 +28,7 @@ export interface Recipe {
   id: string;
   name: string;
   description?: string;
+  image?: string; // 图片 URL 或 base64
   ingredients: Ingredient[];
   tags: string[];
   isFavorite: boolean;
@@ -81,6 +82,7 @@ export interface GistData {
 export interface CreateRecipeInput {
   name: string;
   description?: string;
+  image?: string;
   ingredients: Omit<Ingredient, 'id'>[];
   tags?: string[];
 }

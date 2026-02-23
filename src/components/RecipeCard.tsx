@@ -28,6 +28,18 @@ export function RecipeCard({
 
   return (
     <div className="group bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-xl hover:scale-[1.02] border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200 cursor-pointer">
+      {/* Recipe Image */}
+      {recipe.image && (
+        <div className="relative h-40 overflow-hidden">
+          <img
+            src={recipe.image}
+            alt={recipe.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+        </div>
+      )}
+
       <div className="p-4">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">

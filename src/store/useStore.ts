@@ -13,6 +13,7 @@ import type {
   GistData,
   CategoryId,
 } from '../types';
+import { getCanonicalName } from '../utils/ingredientMerge';
 
 interface AppState {
   // 菜谱数据
@@ -170,17 +171,23 @@ export const useStore = create<AppState>()(
           const currentList = state.shoppingLists.find((l) => l.id === listId);
           if (!currentList) return state;
 
+          // Get merge rules
+          const merges = state.settings.ingredientMerges;
+
           // 创建新项目的 Map，用于聚合
           const itemMap = new Map<string, ShoppingItem>();
 
-          // 先添加现有项目
+          // 先添加现有项目，也应用合并规则
           currentList.items.forEach((item) => {
-            itemMap.set(item.name.toLowerCase(), item);
+            const canonicalName = getCanonicalName(item.name, merges);
+            itemMap.set(canonicalName.toLowerCase(), { ...item, name: canonicalName });
           });
 
           // 添加或合并新食材
           ingredients.forEach((ing) => {
-            const key = ing.name.toLowerCase();
+            // Apply merge rules
+            const canonicalName = getCanonicalName(ing.name, merges);
+            const key = canonicalName.toLowerCase();
             const existing = itemMap.get(key);
 
             if (existing) {
@@ -194,7 +201,7 @@ export const useStore = create<AppState>()(
             } else {
               itemMap.set(key, {
                 id: uuidv4(),
-                name: ing.name,
+                name: canonicalName,
                 quantity: ing.quantity,
                 checked: false,
                 category: ing.category,

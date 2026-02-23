@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Cloud, Download, Upload, Database, FileDown, Github, Zap, Globe } from 'lucide-react';
+import { ArrowLeft, Cloud, Download, Upload, Database, FileDown, Github, Zap, Globe, Sun, Moon, Monitor, Merge } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { useGist } from '../hooks/useGist';
 import { GitHubGuide } from '../components/GitHubGuide';
 import { ShortcutGuide } from '../components/ShortcutGuide';
+import { IngredientMergeManager } from '../components/IngredientMergeManager';
 import { useLanguage } from '../i18n';
+import { useTheme } from '../theme';
 import { APP_VERSION } from '../constants';
 import type { GistData } from '../types';
 import { useRef } from 'react';
@@ -13,12 +15,14 @@ import { useRef } from 'react';
 export function Settings() {
   const navigate = useNavigate();
   const { t, language, setLanguage, shortcutName } = useLanguage();
+  const { theme, setTheme } = useTheme();
   const { settings, exportData, recipes, shoppingLists, importData, updateSettings } = useStore();
   const { isLoading, error, createGist, loadFromGist, saveToGist } = useGist();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [showGitHubGuide, setShowGitHubGuide] = useState(false);
   const [showShortcutGuide, setShowShortcutGuide] = useState(false);
+  const [showMergeManager, setShowMergeManager] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showConfirmSync, setShowConfirmSync] = useState<'load' | 'save' | null>(null);
 
@@ -196,6 +200,59 @@ export function Settings() {
           </p>
         </div>
 
+        {/* Theme */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 bg-yellow-100 dark:bg-yellow-900/30 rounded-xl flex items-center justify-center">
+              {theme === 'dark' ? (
+                <Moon className="w-5 h-5 text-yellow-500" />
+              ) : (
+                <Sun className="w-5 h-5 text-yellow-500" />
+              )}
+            </div>
+            <div>
+              <h2 className="font-semibold text-gray-900 dark:text-white">{t.settings.theme}</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t.settings.themeDesc}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <button
+              onClick={() => setTheme('light')}
+              className={`py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors ${
+                theme === 'light'
+                  ? 'bg-yellow-500 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              <Sun className="w-4 h-4" />
+              {t.settings.themeLight}
+            </button>
+            <button
+              onClick={() => setTheme('dark')}
+              className={`py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors ${
+                theme === 'dark'
+                  ? 'bg-yellow-500 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              <Moon className="w-4 h-4" />
+              {t.settings.themeDark}
+            </button>
+            <button
+              onClick={() => setTheme('system')}
+              className={`py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors ${
+                theme === 'system'
+                  ? 'bg-yellow-500 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              <Monitor className="w-4 h-4" />
+              {t.settings.themeSystem}
+            </button>
+          </div>
+        </div>
+
         {/* Shortcuts Setup */}
         <button
           onClick={() => setShowShortcutGuide(true)}
@@ -208,6 +265,26 @@ export function Settings() {
             <div className="flex-1">
               <h2 className="font-semibold text-gray-900 dark:text-white">{t.settings.shortcuts}</h2>
               <p className="text-xs text-gray-500 dark:text-gray-400">{t.settings.shortcutsDesc}</p>
+            </div>
+            <ArrowLeft className="w-5 h-5 text-gray-400 rotate-180" />
+          </div>
+        </button>
+
+        {/* Ingredient Merge */}
+        <button
+          onClick={() => setShowMergeManager(true)}
+          className="w-full bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm text-left hover:shadow-md transition-shadow"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-teal-100 dark:bg-teal-900/30 rounded-xl flex items-center justify-center">
+              <Merge className="w-5 h-5 text-teal-500" />
+            </div>
+            <div className="flex-1">
+              <h2 className="font-semibold text-gray-900 dark:text-white">{t.ingredientMerge.title}</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t.ingredientMerge.desc}</p>
+            </div>
+            <div className="text-xs text-gray-400 mr-2">
+              {settings.ingredientMerges.length} {language === 'zh' ? '条规则' : 'rules'}
             </div>
             <ArrowLeft className="w-5 h-5 text-gray-400 rotate-180" />
           </div>
@@ -356,6 +433,11 @@ export function Settings() {
       <ShortcutGuide
         isOpen={showShortcutGuide}
         onClose={() => setShowShortcutGuide(false)}
+      />
+
+      <IngredientMergeManager
+        isOpen={showMergeManager}
+        onClose={() => setShowMergeManager(false)}
       />
     </div>
   );
