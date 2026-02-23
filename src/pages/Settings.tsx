@@ -6,6 +6,7 @@ import { useGist } from '../hooks/useGist';
 import { GitHubGuide } from '../components/GitHubGuide';
 import { ShortcutGuide } from '../components/ShortcutGuide';
 import { useLanguage } from '../i18n';
+import { APP_VERSION } from '../constants';
 import type { GistData } from '../types';
 import { useRef } from 'react';
 
@@ -342,7 +343,7 @@ export function Settings() {
 
         {/* Version */}
         <div className="text-center text-xs text-gray-400 dark:text-gray-500 pt-4">
-          Shopping List Assistant · v1.3.0
+          Shopping List Assistant · v{APP_VERSION}
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { Home, BookOpen, ShoppingCart, Settings, ChefHat } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { useLanguage } from '../i18n';
+import { APP_VERSION } from '../constants';
 
 export function Sidebar() {
   const location = useLocation();
@@ -85,7 +86,7 @@ export function Sidebar() {
       {/* Footer */}
       <div className="p-4 border-t border-gray-100 dark:border-gray-800">
         <div className="text-xs text-gray-400 text-center">
-          Shopping List Assistant · v1.5.0
+          Shopping List Assistant · v{APP_VERSION}
         </div>
       </div>
     </aside>
