@@ -31,9 +31,9 @@ export function Home() {
       </div>
 
       {/* Content */}
-      <div className="max-w-lg lg:max-w-4xl mx-auto px-4 py-6 -mt-6">
+      <div className="max-w-lg lg:max-w-4xl mx-auto px-4 py-6 lg:py-8">
         {/* Quick Stats - 4 columns on desktop */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 mb-6 lg:mb-8">
           <button
             onClick={() => navigate('/recipes')}
             className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm text-left hover:shadow-md transition-shadow"
